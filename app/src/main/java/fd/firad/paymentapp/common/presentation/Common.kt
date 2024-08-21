@@ -577,7 +577,7 @@ fun CustomTopBar(
         horizontalArrangement = Arrangement.SpaceEvenly,
         modifier = modifier
             .height(70.dp)
-            .background(color = Color(0xFF1F2937))
+            .background(color = Color(0xFF729762))
             .padding(10.dp)
             .fillMaxWidth()
     ) {
@@ -610,7 +610,9 @@ fun CustomTopBar(
 @Composable
 fun LoadingScreen(modifier: Modifier = Modifier, title: String = "Loading...") {
     Box(
-        modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center
+        modifier = modifier
+            .fillMaxSize()
+            .background(color = Color.White), contentAlignment = Alignment.Center
     ) {
         Row(
             horizontalArrangement = Arrangement.Center,
@@ -620,7 +622,7 @@ fun LoadingScreen(modifier: Modifier = Modifier, title: String = "Loading...") {
             Spacer(modifier = Modifier.width(10.dp))
             Text(
                 text = title,
-                style = TextStyle(color = Color.White),
+                style = TextStyle(color = Color.Black),
                 fontSize = 20.sp,
             )
         }

@@ -1,13 +1,21 @@
 package fd.firad.paymentapp.common.constants
 
+import android.app.Activity
+import android.app.PendingIntent
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.ConnectivityManager
 import android.net.Uri
+import android.os.Build
 import android.telephony.SmsManager
 import android.telephony.SubscriptionManager
+import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import dagger.hilt.android.qualifiers.ApplicationContext
 import fd.firad.paymentapp.home.sms.presentation.SendSmsResult
@@ -16,7 +24,6 @@ import java.io.IOException
 
 object Constants {
     const val BASE_URL = "https://api.codexen.co/api/"
-    const val API_KEY = ""
 
     fun isOnline(@ApplicationContext context: Context): Boolean {
         var haveConnectedWifi = false
@@ -40,7 +47,6 @@ object Constants {
         return haveConnectedWifi || haveConnectedMobile
     }
 
-
     fun sendSMS(context: Context, smsId: Int, phoneNumber: String, message: String): SendSmsResult {
         if (ContextCompat.checkSelfPermission(
                 context, android.Manifest.permission.READ_PHONE_STATE
@@ -59,7 +65,7 @@ object Constants {
                 val smsManager =
                     SmsManager.getSmsManagerForSubscriptionId(subscriptionInfo.subscriptionId)
                 smsManager.sendTextMessage(phoneNumber, null, message, null, null)
-                return SendSmsResult.Success("SMS sent with ID: $smsId")
+                return SendSmsResult.Success("SMS sent successfully... ID: $smsId")
             } else {
                 return SendSmsResult.Failure(Throwable("No SIM cards available"))
             }
@@ -67,6 +73,7 @@ object Constants {
             return SendSmsResult.Failure(Throwable("Failed to send SMS: ${e.message}"))
         }
     }
+
 
 }
 

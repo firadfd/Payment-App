@@ -34,17 +34,17 @@ object AppModule {
     @Singleton
     fun authApiService(httpClient: OkHttpClient, gson: Gson): AuthApiService =
         Retrofit.Builder().run {
-                baseUrl(BASE_URL).addConverterFactory(GsonConverterFactory.create(gson))
-                    .client(httpClient).build()
-            }.create(AuthApiService::class.java)
+            baseUrl(BASE_URL).addConverterFactory(GsonConverterFactory.create(gson))
+                .client(httpClient).build()
+        }.create(AuthApiService::class.java)
 
     @Provides
     @Singleton
     fun smsApiService(httpClient: OkHttpClient, gson: Gson): SMSApiService =
         Retrofit.Builder().run {
-                baseUrl(BASE_URL).addConverterFactory(GsonConverterFactory.create(gson))
-                    .client(httpClient).build()
-            }.create(SMSApiService::class.java)
+            baseUrl(BASE_URL).addConverterFactory(GsonConverterFactory.create(gson))
+                .client(httpClient).build()
+        }.create(SMSApiService::class.java)
 
 
     @Provides
@@ -55,8 +55,8 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideSMSRepository(apiService: SMSApiService): SMSRepository {
-        return SMSRepositoryImpl(apiService)
+    fun provideSMSRepository(apiService: SMSApiService, smsDatabase: SmsDatabase): SMSRepository {
+        return SMSRepositoryImpl(apiService, smsDatabase)
     }
 
     @Provides

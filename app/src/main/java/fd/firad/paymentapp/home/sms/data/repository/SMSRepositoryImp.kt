@@ -1,6 +1,6 @@
 package fd.firad.paymentapp.home.sms.data.repository
 
-import android.util.Log
+import androidx.lifecycle.LiveData
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import fd.firad.paymentapp.common.model.ApiResponseState
@@ -12,6 +12,8 @@ import fd.firad.paymentapp.home.sms.data.model.UpdateSMSStatusResponse
 import fd.firad.paymentapp.home.sms.data.model.UpdateStatusBody
 import fd.firad.paymentapp.home.sms.data.model.UserInfoResponse
 import fd.firad.paymentapp.home.sms.domain.repository.SMSRepository
+import fd.firad.paymentapp.room.database.SmsDatabase
+import fd.firad.paymentapp.room.entity.SmsEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import retrofit2.HttpException
@@ -20,12 +22,23 @@ import java.net.SocketTimeoutException
 import javax.inject.Inject
 import kotlin.coroutines.cancellation.CancellationException
 
-class SMSRepositoryImpl @Inject constructor(private val smsApiService: SMSApiService) :
-    SMSRepository {
+class SMSRepositoryImpl @Inject constructor(
+    private val smsApiService: SMSApiService, private val roomDb: SmsDatabase
+) : SMSRepository {
+    override suspend fun insertSms(smsEntity: SmsEntity) {
+        roomDb.smsDao().insertSms(smsEntity)
+    }
+
+    override fun getAllSms(): LiveData<List<SmsEntity>> {
+        return roomDb.smsDao().getAllSms()
+    }
+
+    override suspend fun deleteSms(smsEntity: SmsEntity) {
+        roomDb.smsDao().deleteSms(smsEntity)
+    }
+
     override suspend fun allSms(
-        token: String,
-        apiKey: String,
-        secretKey: String
+        token: String, apiKey: String, secretKey: String
     ): ApiResponseState<AllSMSResponse> {
         return withContext(Dispatchers.IO) {
             try {
@@ -59,9 +72,7 @@ class SMSRepositoryImpl @Inject constructor(private val smsApiService: SMSApiSer
     }
 
     override suspend fun pendingSms(
-        token: String,
-        apiKey: String,
-        secretKey: String
+        token: String, apiKey: String, secretKey: String
     ): ApiResponseState<AllSMSResponse> {
         return withContext(Dispatchers.IO) {
             try {
@@ -95,22 +106,14 @@ class SMSRepositoryImpl @Inject constructor(private val smsApiService: SMSApiSer
     }
 
 
-
     override suspend fun paymentSms(
-        token: String,
-        apiKey: String,
-        secretKey: String,
-        request: PaymentSendSmsBody
+        token: String, apiKey: String, secretKey: String, request: PaymentSendSmsBody
     ): ApiResponseState<PaymentSMSResponse> {
         return withContext(Dispatchers.IO) {
             try {
-                val response =
-                    smsApiService.paymentSms(
-                        token = token,
-                        apiKey = apiKey,
-                        secretKey = secretKey,
-                        request = request
-                    )
+                val response = smsApiService.paymentSms(
+                    token = token, apiKey = apiKey, secretKey = secretKey, request = request
+                )
                 if (response.isSuccessful) {
                     response.body()?.let {
                         ApiResponseState.Success(it)
@@ -141,10 +144,9 @@ class SMSRepositoryImpl @Inject constructor(private val smsApiService: SMSApiSer
     override suspend fun userInfo(token: String): ApiResponseState<UserInfoResponse> {
         return withContext(Dispatchers.IO) {
             try {
-                val response =
-                    smsApiService.userInfo(
-                        token = token
-                    )
+                val response = smsApiService.userInfo(
+                    token = token
+                )
                 if (response.isSuccessful) {
                     response.body()?.let {
                         ApiResponseState.Success(it)
@@ -173,22 +175,17 @@ class SMSRepositoryImpl @Inject constructor(private val smsApiService: SMSApiSer
     }
 
     override suspend fun updateStatus(
-        token: String,
-        id: Int,
-        apiKey: String,
-        secretKey: String,
-        request: UpdateStatusBody
+        token: String, id: Int, apiKey: String, secretKey: String, request: UpdateStatusBody
     ): ApiResponseState<UpdateSMSStatusResponse> {
         return withContext(Dispatchers.IO) {
             try {
-                val response =
-                    smsApiService.updateSmsStatus(
-                        id = id,
-                        token = token,
-                        apiKey = apiKey,
-                        secretKey = secretKey,
-                        request = request
-                    )
+                val response = smsApiService.updateSmsStatus(
+                    id = id,
+                    token = token,
+                    apiKey = apiKey,
+                    secretKey = secretKey,
+                    request = request
+                )
                 if (response.isSuccessful) {
                     response.body()?.let {
                         ApiResponseState.Success(it)

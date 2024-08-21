@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -30,8 +31,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -43,6 +46,7 @@ import fd.firad.paymentapp.common.presentation.LoadingScreen
 import fd.firad.paymentapp.home.sms.data.model.AllSMSData
 import fd.firad.paymentapp.home.sms.data.model.UpdateStatusBody
 import fd.firad.paymentapp.home.sms.presentation.viewmodel.SMSViewModel
+import fd.firad.paymentapp.room.entity.SmsEntity
 
 
 @Composable
@@ -50,6 +54,9 @@ fun SMSScreen(navController: NavHostController, viewModel: SMSViewModel = hiltVi
 
     val smsList = remember {
         mutableStateListOf<AllSMSData>()
+    }
+    val noSMS = remember {
+        mutableStateOf(false)
     }
     val context = LocalContext.current
     var loading by remember { mutableStateOf(false) }
@@ -62,6 +69,7 @@ fun SMSScreen(navController: NavHostController, viewModel: SMSViewModel = hiltVi
             )
         }
     }
+
 
 
     LaunchedEffect(viewModel) {
@@ -83,6 +91,8 @@ fun SMSScreen(navController: NavHostController, viewModel: SMSViewModel = hiltVi
                         if (state.data.data.isNotEmpty()) {
                             val filteredSmsList = state.data.data.distinctBy { it.id }
                             smsList.addAll(filteredSmsList)
+                        } else {
+                            noSMS.value = true
                         }
                     }
                 }
@@ -97,7 +107,9 @@ fun SMSScreen(navController: NavHostController, viewModel: SMSViewModel = hiltVi
         Column(
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
+                .background(color = Color.White)
         ) {
             CustomTopBar(title = "Pending SMS") {
                 navController.navigate("ScreenHome") {
@@ -108,37 +120,47 @@ fun SMSScreen(navController: NavHostController, viewModel: SMSViewModel = hiltVi
                 }
             }
             Spacer(modifier = Modifier.height(10.dp))
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(10.dp)
-            ) {
-                items(smsList) { sms ->
-                    SMSItem(
-                        smsModelItem = sms, onClick = {
-                            val sendResult = sendSMS(context, sms.id, sms.number, sms.message)
-                            when (sendResult) {
-                                is SendSmsResult.Success -> {
-                                    viewModel.updateSMSStatus(
-                                        id = sms.id,
-                                        apiKey = viewModel.getApiToken()!!,
-                                        secretKey = viewModel.getSecretKey()!!,
-                                        request = UpdateStatusBody(status = "sent")
-                                    )
-                                    smsList.remove(sms)
-                                    Toast.makeText(
-                                        context, sendResult.message, Toast.LENGTH_SHORT
-                                    ).show()
-                                }
-
-                                is SendSmsResult.Failure -> {
-                                    Toast.makeText(
-                                        context, sendResult.error.message, Toast.LENGTH_SHORT
-                                    ).show()
-                                }
-                            }
-                        }, modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 8.dp)
+            if (noSMS.value) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text(
+                        text = "No Pending SMS Found", style = TextStyle(
+                            color = Color.Black, fontSize = 18.sp
+                        )
                     )
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(10.dp)
+                ) {
+                    items(smsList) { sms ->
+                        SMSItem(
+                            smsModelItem = sms, onClick = {
+                                val sendResult = sendSMS(context, sms.id, sms.number, sms.message)
+                                when (sendResult) {
+                                    is SendSmsResult.Success -> {
+                                        viewModel.updateSMSStatus(
+                                            id = sms.id,
+                                            apiKey = viewModel.getApiToken()!!,
+                                            secretKey = viewModel.getSecretKey()!!,
+                                            request = UpdateStatusBody(status = "sent")
+                                        )
+                                        smsList.remove(sms)
+                                        Toast.makeText(
+                                            context, sendResult.message, Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+
+                                    is SendSmsResult.Failure -> {
+                                        Toast.makeText(
+                                            context, sendResult.error.message, Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+                                }
+                            }, modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 8.dp)
+                        )
+                    }
                 }
             }
 
@@ -161,7 +183,7 @@ fun SMSItem(
         .border(
             width = 1.dp, color = Color.White, shape = RoundedCornerShape(10.dp)
         )
-        .background(Color.Gray, shape = RoundedCornerShape(10.dp))
+        .background(Color(0xffDCFCE7), shape = RoundedCornerShape(10.dp))
         .padding(10.dp)
         .clickable {
             onClick()
@@ -171,18 +193,32 @@ fun SMSItem(
         ) {
             Text(
                 text = smsModelItem.number, style = MaterialTheme.typography.bodyLarge.copy(
-                    fontWeight = FontWeight.Bold, fontSize = 18.sp, color = Color.White
+                    fontWeight = FontWeight.Bold, fontSize = 18.sp, color = Color.Black
                 )
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = smsModelItem.message, style = MaterialTheme.typography.bodyMedium.copy(
-                    color = Color.White
-                ), maxLines = 1, overflow = TextOverflow.Ellipsis
+                    color = Color.Black,
+                ), maxLines = 4, overflow = TextOverflow.Ellipsis
             )
         }
 
-
     }
+}
+
+@Preview
+@Composable
+private fun PreSMSItem() {
+    SMSItem(
+        smsModelItem = AllSMSData(
+            id = 0,
+            user_id = 10,
+            number = "01770977155",
+            message = "You have received Tk 790.00 from 01735740437. Ref 123. Fee Tk 0.00. Balance Tk 793.50. TrxID BHK7TVNS6F at 20/08/2024 13:04",
+            status = "pending",
+            created_at = "",
+            updated_at = ""
+        ), onClick = { })
 }
 

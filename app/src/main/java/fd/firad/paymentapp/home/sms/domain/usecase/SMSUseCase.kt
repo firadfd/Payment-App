@@ -1,5 +1,6 @@
 package fd.firad.paymentapp.home.sms.domain.usecase
 
+import androidx.lifecycle.LiveData
 import fd.firad.paymentapp.common.model.ApiResponseState
 import fd.firad.paymentapp.home.sms.data.model.AllSMSResponse
 import fd.firad.paymentapp.home.sms.data.model.PaymentSMSResponse
@@ -8,9 +9,22 @@ import fd.firad.paymentapp.home.sms.data.model.UpdateSMSStatusResponse
 import fd.firad.paymentapp.home.sms.data.model.UpdateStatusBody
 import fd.firad.paymentapp.home.sms.data.model.UserInfoResponse
 import fd.firad.paymentapp.home.sms.domain.repository.SMSRepository
+import fd.firad.paymentapp.room.entity.SmsEntity
 import javax.inject.Inject
 
 class SMSUseCase @Inject constructor(private val smsRepository: SMSRepository) {
+
+    fun getFailedSms(): LiveData<List<SmsEntity>> {
+        return smsRepository.getAllSms()
+    }
+
+    suspend fun insertSms(smsEntity: SmsEntity) {
+        smsRepository.insertSms(smsEntity)
+    }
+
+    suspend fun deleteSms(smsEntity: SmsEntity) {
+        smsRepository.deleteSms(smsEntity)
+    }
 
     suspend fun allSms(
         token: String,

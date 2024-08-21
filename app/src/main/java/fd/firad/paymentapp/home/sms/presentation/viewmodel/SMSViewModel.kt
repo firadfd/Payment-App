@@ -1,5 +1,7 @@
 package fd.firad.paymentapp.home.sms.presentation.viewmodel
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fd.firad.paymentapp.common.model.ApiResponseState
@@ -12,6 +14,7 @@ import fd.firad.paymentapp.home.sms.data.model.UpdateSMSStatusResponse
 import fd.firad.paymentapp.home.sms.data.model.UpdateStatusBody
 import fd.firad.paymentapp.home.sms.data.model.UserInfoResponse
 import fd.firad.paymentapp.home.sms.domain.usecase.SMSUseCase
+import fd.firad.paymentapp.room.entity.SmsEntity
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -21,6 +24,30 @@ import javax.inject.Inject
 class SMSViewModel @Inject constructor(
     private val smsUseCase: SMSUseCase, sharedPreferenceManager: SharedPreferenceManager
 ) : BaseViewModel(sharedPreferenceManager) {
+
+
+    private val _failedSmsList = MutableStateFlow<List<SmsEntity>>(emptyList())
+    val failedSmsList: StateFlow<List<SmsEntity>> get() = _failedSmsList
+
+    fun loadFailedSms() {
+        viewModelScope.launch {
+            smsUseCase.getFailedSms().observeForever { smsList ->
+                _failedSmsList.value = smsList ?: emptyList()
+            }
+        }
+    }
+
+    fun insertSms(smsEntity: SmsEntity) {
+        viewModelScope.launch {
+            smsUseCase.insertSms(smsEntity)
+        }
+    }
+
+    fun deleteSms(smsEntity: SmsEntity) {
+        viewModelScope.launch {
+            smsUseCase.deleteSms(smsEntity)
+        }
+    }
 
     private val _allSMSState =
         MutableStateFlow<ApiResponseState<AllSMSResponse>>(ApiResponseState.Loading)
@@ -80,7 +107,8 @@ class SMSViewModel @Inject constructor(
                 if (getToken() != null) {
                     val result = smsUseCase.updateSmsStatus(
                         "Bearer ${getToken()!!}",
-                        id = id, apiKey = apiKey,
+                        id = id,
+                        apiKey = apiKey,
                         secretKey = secretKey,
                         request = request
                     )

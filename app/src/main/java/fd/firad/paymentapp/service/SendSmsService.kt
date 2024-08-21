@@ -96,7 +96,7 @@ class SendSmsService : IntentService("SendSmsService") {
                         } catch (e: Exception) {
                             smsDao.insertSms(
                                 SmsEntity(
-                                    sender = sender, msg = message!!
+                                    sender = sender!!, msg = message!!
                                 )
                             )
                         }

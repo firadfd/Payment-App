@@ -22,21 +22,24 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTime
-import androidx.compose.material.icons.filled.PendingActions
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.filled.SmsFailed
 import androidx.compose.material.icons.filled.Verified
-import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -65,14 +68,22 @@ import fd.firad.paymentapp.service.SmsService
 fun HomeScreen(navController: NavHostController, viewModel: SMSViewModel = hiltViewModel()) {
     val context = LocalContext.current
     var loading by remember { mutableStateOf(false) }
+    val state = rememberScrollState()
     var name by remember { mutableStateOf("") }
     var image by remember { mutableStateOf("") }
     var emailStatus by remember { mutableStateOf(true) }
+    var totalSMSSend by remember { mutableStateOf(0) }
+    var totalSMSPending by remember { mutableStateOf(0) }
+    var totalPaymentSMSSend by remember { mutableStateOf(0) }
     var dataLoaded by rememberSaveable { mutableStateOf(false) }
     val packageName = context.packageName
     val powerManager = remember {
         context.getSystemService(Context.POWER_SERVICE) as PowerManager
     }
+    LaunchedEffect(Unit) {
+        viewModel.loadFailedSms()
+    }
+    val failedSmsList by viewModel.failedSmsList.collectAsState(emptyList())
 
     val batteryOptimizationLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
@@ -138,7 +149,9 @@ fun HomeScreen(navController: NavHostController, viewModel: SMSViewModel = hiltV
     Column(
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.fillMaxSize().background(color = Color.White)
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = Color.White)
     ) {
         PinnedChatsTopBar(
             name = name,
@@ -147,43 +160,75 @@ fun HomeScreen(navController: NavHostController, viewModel: SMSViewModel = hiltV
             modifier = Modifier
                 .fillMaxWidth()
                 .height(70.dp)
+
         ) {
 
         }
-        Spacer(modifier = Modifier.height(10.dp))
-        SMSStatusItem(
-            Icons.Default.AccessTime,
-            "Pending SMS",
-            "",
-            "10",
-            Color(0xffDBEAFE),
+        Column(
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 10.dp, end = 10.dp)
-        )
-        Spacer(modifier = Modifier.height(10.dp))
-        SMSStatusItem(
-            Icons.Default.Send,
-            "Send SMS",
-            "",
-            "4",
-            Color(0xffDCFCE7),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 10.dp, end = 10.dp)
-        )
-        Spacer(modifier = Modifier.height(10.dp))
-        SMSStatusItem(
-            Icons.Default.SmsFailed,
-            "Failed Payment SMS",
-            "",
-            "12",
-            Color(0xffFEF9C3),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 10.dp, end = 10.dp)
-        )
-        Spacer(modifier = Modifier.height(10.dp))
+                .fillMaxSize()
+                .verticalScroll(state)
+                .background(color = Color.White)
+        ) {
+            Spacer(modifier = Modifier.height(10.dp))
+            SMSStatusItem(
+                Icons.Default.Send,
+                "Total SMS Send",
+                "",
+                "$totalSMSSend",
+                Color(0xffDCFCE7),
+                iconTint = Color(0xff88D66C),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 10.dp, end = 10.dp)
+            ) {
+
+            }
+            Spacer(modifier = Modifier.height(10.dp))
+            SMSStatusItem(
+                Icons.Default.AccessTime,
+                "Pending SMS",
+                "",
+                "$totalSMSPending",
+                color = Color(0xffDBEAFE),
+                iconTint = Color(0xff40534C),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 10.dp, end = 10.dp)
+            ) {
+
+            }
+            Spacer(modifier = Modifier.height(10.dp))
+            SMSStatusItem(
+                Icons.Default.SmsFailed,
+                "Total Payment SMS Send",
+                "",
+                "$totalPaymentSMSSend",
+                color = Color(0xffF8EDE3),
+                iconTint = Color(0xff88D66C),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 10.dp, end = 10.dp)
+            ) {
+
+            }
+            Spacer(modifier = Modifier.height(10.dp))
+            SMSStatusItem(
+                Icons.Default.History,
+                "Failed Payment SMS",
+                "",
+                "${failedSmsList.size}",
+                Color(0xffFEF9C3),
+                iconTint = Color(0xffFF4E88),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 10.dp, end = 10.dp)
+            ) {
+
+            }
+        }
 
 
     }
@@ -206,14 +251,17 @@ fun SMSStatusItem(
     subTitle: String,
     amount: String,
     color: Color,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    iconTint: Color = Color(0xFF00C853),
+    onClick: () -> Unit
 ) {
     Card(
-        shape = RoundedCornerShape(10.dp),
         colors = CardDefaults.cardColors(containerColor = color),
         modifier = modifier
             .fillMaxWidth()
+            .clip(RoundedCornerShape(10.dp))
             .height(80.dp)
+            .clickable { onClick() }
     ) {
         Row(
             modifier = Modifier
@@ -222,21 +270,15 @@ fun SMSStatusItem(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = "Checkmark",
-                tint = Color(0xFF00C853),
-                modifier = Modifier.size(24.dp)
-            )
-            Spacer(modifier = Modifier.weight(1f))
             Column(
-                modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.End
+                horizontalAlignment = Alignment.Start
             ) {
                 Text(
+                    modifier = Modifier.wrapContentWidth(),
                     text = title,
                     fontSize = 16.sp,
+                    maxLines = 1,
                     color = Color(0xFF4D4D4D)
                 )
                 Spacer(modifier = Modifier.width(10.dp))
@@ -247,6 +289,13 @@ fun SMSStatusItem(
                     color = Color(0xFF000000)
                 )
             }
+            Spacer(modifier = Modifier.weight(1f))
+            Icon(
+                imageVector = icon,
+                contentDescription = "Checkmark",
+                tint = iconTint,
+                modifier = Modifier.size(24.dp)
+            )
 
         }
     }
@@ -262,7 +311,7 @@ fun PinnedChatsTopBar(
 ) {
     Row(
         modifier = modifier
-            .background(color = Color(0xFF1F2937))
+            .background(color = Color(0xFF729762))
             .padding(10.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically

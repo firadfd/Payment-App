@@ -1,5 +1,6 @@
 package fd.firad.paymentapp.nav
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -7,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person3
 import androidx.compose.material.icons.filled.Sms
@@ -38,6 +40,7 @@ import androidx.navigation.compose.rememberNavController
 import fd.firad.paymentapp.home.sms.presentation.FailedSMSScreen
 import fd.firad.paymentapp.home.sms.presentation.HomeScreen
 import fd.firad.paymentapp.home.sms.presentation.ProfileScreen
+import fd.firad.paymentapp.home.sms.presentation.SMSHistoryScreen
 import fd.firad.paymentapp.home.sms.presentation.SMSScreen
 import fd.firad.paymentapp.ui.theme.yellowColor
 
@@ -55,9 +58,14 @@ fun MainNavHost(rootNavController: NavHostController) {
             title = "SMS", routeName = "ScreenSMS", selectedIcon = Icons.Default.Sms
         ),
         BottomNavigationItem(
-            title = "Failed SMS",
+            title = "Failed",
             routeName = "ScreenPaymentSMS",
             selectedIcon = Icons.Default.SmsFailed
+        ),
+        BottomNavigationItem(
+            title = "History",
+            routeName = "ScreenSMSHistory",
+            selectedIcon = Icons.Default.History
         ),
         BottomNavigationItem(
             title = "Profile",
@@ -73,6 +81,7 @@ fun MainNavHost(rootNavController: NavHostController) {
             if (currentDestination != null) {
                 NavigationBar(
                     modifier = Modifier
+                        .background(color = Color.White)
                         .clip(
                             shape = RoundedCornerShape(
                                 topStart = 10.dp,
@@ -81,7 +90,8 @@ fun MainNavHost(rootNavController: NavHostController) {
                                 bottomEnd = 0.dp
                             )
                         )
-                        .fillMaxWidth(), containerColor = Color(0xFF1F2937)
+                        .fillMaxWidth(),
+                    containerColor = Color(0xFF729762)
                 ) {
                     itemList.forEachIndexed { index, item ->
                         val isSelected =
@@ -111,7 +121,7 @@ fun MainNavHost(rootNavController: NavHostController) {
                                     color = if (isSelected) {
                                         yellowColor
                                     } else {
-                                        Color(0xFF9CA3AF)
+                                        Color.White
                                     }
                                 ),
 
@@ -124,7 +134,7 @@ fun MainNavHost(rootNavController: NavHostController) {
                                     tint = if (isSelected) {
                                         yellowColor
                                     } else {
-                                        Color(0xFF9CA3AF)
+                                        Color.White
                                     },
                                     modifier = Modifier.size(25.dp)
                                 )
@@ -148,6 +158,9 @@ fun MainNavHost(rootNavController: NavHostController) {
                 }
                 composable("ScreenPaymentSMS") {
                     FailedSMSScreen(navController = navController)
+                }
+                composable("ScreenSMSHistory") {
+                    SMSHistoryScreen(navController = navController)
                 }
                 composable("ScreenProfile") {
                     ProfileScreen(navController = navController)
