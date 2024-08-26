@@ -1,5 +1,7 @@
 package fd.firad.paymentapp.home.sms.presentation
 
+import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -41,6 +43,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.stevdzasan.messagebar.ContentWithMessageBar
+import com.stevdzasan.messagebar.MessageBarPosition
+import com.stevdzasan.messagebar.rememberMessageBarState
 import fd.firad.paymentapp.common.model.ApiResponseState
 import fd.firad.paymentapp.common.presentation.CustomTopBar
 import fd.firad.paymentapp.home.sms.data.model.PaymentSendSmsBody
@@ -51,50 +56,65 @@ import fd.firad.paymentapp.room.entity.SmsEntity
 @Composable
 fun FailedSMSScreen(navController: NavHostController, viewModel: SMSViewModel = hiltViewModel()) {
     val context = LocalContext.current
+    val messageBarState = rememberMessageBarState()
     var sendSMS by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
         viewModel.loadFailedSms()
     }
+
+
     val failedSmsList by viewModel.failedSmsList.collectAsState(emptyList())
-    Column(
-        verticalArrangement = Arrangement.Top,
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
-            .fillMaxSize()
-            .background(color = Color.White)
+    ContentWithMessageBar(
+        messageBarState = messageBarState,
+        position = MessageBarPosition.TOP,
+        showCopyButton = false,
+        visibilityDuration = 5000L,
+        errorMaxLines = 2
     ) {
-        CustomTopBar(title = "Failed Payment SMS") {
-            navController.navigate("ScreenHome") {
-                popUpTo("ScreenHome") {
-                    inclusive = true
+        Column(
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .fillMaxSize()
+                .background(color = Color.White)
+        ) {
+            CustomTopBar(title = "Failed Payment SMS") {
+                navController.navigate("ScreenHome") {
+                    popUpTo("ScreenHome") {
+                        inclusive = true
+                    }
+                    launchSingleTop = true
                 }
-                launchSingleTop = true
             }
-        }
-        Spacer(modifier = Modifier.height(10.dp))
-        if (failedSmsList.isEmpty()) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text(
-                    text = "No Failed Transaction SMS Found", style = TextStyle(
-                        color = Color.Black, fontSize = 18.sp
+            Spacer(modifier = Modifier.height(10.dp))
+            if (failedSmsList.isEmpty()) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text(
+                        text = "No Failed Transaction SMS Found", style = TextStyle(
+                            color = Color.Black, fontSize = 18.sp
+                        )
                     )
-                )
-            }
-        } else {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(10.dp)
-            ) {
-                items(failedSmsList) { sms ->
-                    TraSMSItem(
-                        smsModelItem = sms,
-                        onDeleteClick = {
-                            viewModel.deleteSms(sms)
-                        },
-                        viewModel = viewModel,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 8.dp)
-                    )
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(10.dp)
+                ) {
+                    items(failedSmsList) { sms ->
+                        TraSMSItem(
+                            smsModelItem = sms,
+                            onDeleteClick = {
+                                viewModel.deleteSms(sms)
+                            },
+                            onNoKeyClick = {
+                                messageBarState.addError(exception = Exception(it))
+                            },
+                            viewModel = viewModel,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 8.dp),
+                            context = context
+                        )
+                    }
                 }
             }
         }
@@ -106,18 +126,25 @@ fun TraSMSItem(
     smsModelItem: SmsEntity,
     viewModel: SMSViewModel,
     modifier: Modifier = Modifier,
-    onDeleteClick: () -> Unit
+    onDeleteClick: () -> Unit,
+    onNoKeyClick: (String) -> Unit,
+    context: Context
 ) {
     var currentSmsId by remember { mutableStateOf<Long?>(null) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+
     LaunchedEffect(viewModel.paymentSMSState) {
         viewModel.paymentSMSState.collect { state ->
             when (state) {
                 is ApiResponseState.Loading -> {
-
+                    // Handle loading state if needed
                 }
 
                 is ApiResponseState.Error -> {
-
+                    if (errorMessage != state.errorMessage) {
+                        errorMessage = state.errorMessage
+                        Toast.makeText(context, state.errorMessage, Toast.LENGTH_SHORT).show()
+                    }
                 }
 
                 is ApiResponseState.Success -> {
@@ -130,6 +157,8 @@ fun TraSMSItem(
                             )
                         }
                     }
+                    // Reset the errorMessage after success, so the Toast can show again for a new error
+                    errorMessage = null
                 }
             }
         }
@@ -174,11 +203,16 @@ fun TraSMSItem(
 
             IconButton(onClick = {
                 currentSmsId = smsModelItem.id?.toLong()
-                viewModel.paymentSms(
-                    apiKey = viewModel.getApiToken()!!,
-                    secretKey = viewModel.getSecretKey()!!,
-                    PaymentSendSmsBody(smsModelItem.sender, smsModelItem.msg)
-                )
+                if (viewModel.getApiToken() != null && viewModel.getSecretKey() != null) {
+                    viewModel.paymentSms(
+                        apiKey = viewModel.getApiToken()!!,
+                        secretKey = viewModel.getSecretKey()!!,
+                        PaymentSendSmsBody(smsModelItem.sender, smsModelItem.msg)
+                    )
+                } else {
+                    onNoKeyClick("Please Purchase Subscription")
+                }
+
             }) {
                 Icon(
                     imageVector = Icons.Default.Send,
@@ -189,5 +223,6 @@ fun TraSMSItem(
         }
     }
 }
+
 
 

@@ -5,6 +5,7 @@ import fd.firad.paymentapp.home.sms.data.model.PaymentSMSResponse
 import fd.firad.paymentapp.home.sms.data.model.PaymentSendSmsBody
 import fd.firad.paymentapp.home.sms.data.model.SendSMSResponse
 import fd.firad.paymentapp.home.sms.data.model.SendSmsBody
+import fd.firad.paymentapp.home.sms.data.model.TransactionResponse
 import fd.firad.paymentapp.home.sms.data.model.UpdateSMSStatusResponse
 import fd.firad.paymentapp.home.sms.data.model.UpdateStatusBody
 import fd.firad.paymentapp.home.sms.data.model.UserInfoResponse
@@ -66,7 +67,7 @@ interface SMSApiService {
         @Header("Authorization") token: String,
     ): Response<UserInfoResponse>
 
-    //7
+    //10
     @PUT("sms/update-status/{id}")
     suspend fun updateSmsStatus(
         @Path("id") id: Int,
@@ -75,6 +76,38 @@ interface SMSApiService {
         @Header("secret-key") secretKey: String,
         @Body request: UpdateStatusBody
     ): Response<UpdateSMSStatusResponse>
+
+    //11
+    @GET("todaytransaction")
+    suspend fun todayTransaction(
+        @Header("Authorization") token: String,
+    ): Response<TransactionResponse>
+
+
+    //12
+    @GET("weeklytransaction")
+    suspend fun weeklyTransaction(
+        @Header("Authorization") token: String,
+    ): Response<TransactionResponse>
+
+
+    //13
+    @GET("monthlytransaction")
+    suspend fun monthlyTransaction(
+        @Header("Authorization") token: String,
+    ): Response<TransactionResponse>
+
+    //14
+    @GET("yearlytransaction")
+    suspend fun yearlyTransaction(
+        @Header("Authorization") token: String,
+    ): Response<TransactionResponse>
+
+    //14
+    @GET("alltimetransaction")
+    suspend fun alltimeTransaction(
+        @Header("Authorization") token: String,
+    ): Response<TransactionResponse>
 
 
 }

@@ -5,6 +5,7 @@ import fd.firad.paymentapp.common.model.ApiResponseState
 import fd.firad.paymentapp.home.sms.data.model.AllSMSResponse
 import fd.firad.paymentapp.home.sms.data.model.PaymentSMSResponse
 import fd.firad.paymentapp.home.sms.data.model.PaymentSendSmsBody
+import fd.firad.paymentapp.home.sms.data.model.TransactionResponse
 import fd.firad.paymentapp.home.sms.data.model.UpdateSMSStatusResponse
 import fd.firad.paymentapp.home.sms.data.model.UpdateStatusBody
 import fd.firad.paymentapp.home.sms.data.model.UserInfoResponse
@@ -47,5 +48,11 @@ interface SMSRepository {
         secretKey: String,
         request: UpdateStatusBody
     ): ApiResponseState<UpdateSMSStatusResponse>
+
+    suspend fun todayTransaction(token: String): ApiResponseState<TransactionResponse>
+    suspend fun weekTransaction(token: String): ApiResponseState<TransactionResponse>
+    suspend fun monthTransaction(token: String): ApiResponseState<TransactionResponse>
+    suspend fun yearTransaction(token: String): ApiResponseState<TransactionResponse>
+    suspend fun allTransaction(token: String): ApiResponseState<TransactionResponse>
 
 }

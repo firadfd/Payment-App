@@ -8,6 +8,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.widget.Toast
+import androidx.compose.ui.text.toLowerCase
 import androidx.core.app.NotificationCompat
 import dagger.hilt.android.AndroidEntryPoint
 import fd.firad.paymentapp.MainActivity
@@ -24,6 +25,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import java.util.Locale
 import javax.inject.Inject
 
 
@@ -53,7 +55,7 @@ class SendSmsService : IntentService("SendSmsService") {
                                 apiKey = sharedPreferencesManager.getApi()!!,
                                 secretKey = sharedPreferencesManager.getSecret()!!,
                                 request = PaymentSendSmsBody(
-                                    sender = sender, sms_text = message!!
+                                    sender = sender.toLowerCase(), sms_text = message!!
                                 )
                             )
                             when (result) {
@@ -107,7 +109,9 @@ class SendSmsService : IntentService("SendSmsService") {
                 }
             } else {
                 Toast.makeText(
-                    applicationContext, "Please Log In First", Toast.LENGTH_LONG
+                    applicationContext,
+                    "Please Purchase Subscription To Active Payment SMS Features",
+                    Toast.LENGTH_LONG
                 ).show()
             }
 

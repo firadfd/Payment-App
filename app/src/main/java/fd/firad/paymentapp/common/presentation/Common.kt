@@ -618,7 +618,7 @@ fun LoadingScreen(modifier: Modifier = Modifier, title: String = "Loading...") {
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            CircularProgressIndicator()
+            CircularProgressIndicator(color = Color.Black)
             Spacer(modifier = Modifier.width(10.dp))
             Text(
                 text = title,

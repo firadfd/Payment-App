@@ -39,6 +39,14 @@ data class PaymentSMSResponse(
 data class UserInfoResponse(
     val status: Boolean,
     val message: String,
+    val totalSmsCount: Int,
+    val pendingsmscount: Int,
+    val sentsmscount: Int,
+    val faildsmscount: Int,
+    val totalpaymentcount: Int,
+    val pendingpayment: Int,
+    val successpayment: Int,
+    val cancalledpayment: Int,
     val user: UserInfoData,
     val subscriptions: SubscriptionsResponse
 )
@@ -88,4 +96,18 @@ data class PaymentSMSData(
     val updated_at: String,
     val created_at: String,
     val id: Int,
+)
+
+data class TransactionResponse(
+    val status: String,
+    val message: String,
+    val todayTransaction: String? = null,
+    val weeklyTransaction: String? = null,
+    val monthlyTransaction: String? = null,
+    val yearlyTransaction: String? = null,
+    val allTimeTransaction: String? = null,
+    val bkash: String,
+    val nagad: String,
+    val rocket: String,
+    val upay: String,
 )

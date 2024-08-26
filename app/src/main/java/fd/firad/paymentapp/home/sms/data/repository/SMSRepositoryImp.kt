@@ -8,6 +8,7 @@ import fd.firad.paymentapp.home.sms.data.api.SMSApiService
 import fd.firad.paymentapp.home.sms.data.model.AllSMSResponse
 import fd.firad.paymentapp.home.sms.data.model.PaymentSMSResponse
 import fd.firad.paymentapp.home.sms.data.model.PaymentSendSmsBody
+import fd.firad.paymentapp.home.sms.data.model.TransactionResponse
 import fd.firad.paymentapp.home.sms.data.model.UpdateSMSStatusResponse
 import fd.firad.paymentapp.home.sms.data.model.UpdateStatusBody
 import fd.firad.paymentapp.home.sms.data.model.UserInfoResponse
@@ -185,6 +186,171 @@ class SMSRepositoryImpl @Inject constructor(
                     apiKey = apiKey,
                     secretKey = secretKey,
                     request = request
+                )
+                if (response.isSuccessful) {
+                    response.body()?.let {
+                        ApiResponseState.Success(it)
+                    } ?: ApiResponseState.Error("Response body is null")
+                } else {
+
+                    val errorBody = response.errorBody()?.string()
+                    val errorMessage = errorBody?.let {
+                        val jsonObject = Gson().fromJson(it, JsonObject::class.java)
+                        jsonObject.get("message")?.asString ?: "Unknown error"
+                    }
+                    ApiResponseState.Error("Error: ${response.code()} - $errorMessage")
+                }
+            } catch (e: IOException) {
+                ApiResponseState.Error("Network error: ${e.message}")
+            } catch (e: SocketTimeoutException) {
+                ApiResponseState.Error("Request timed out: ${e.message}")
+            } catch (e: HttpException) {
+                ApiResponseState.Error("HTTP error: ${e.message()}")
+            } catch (e: CancellationException) {
+                ApiResponseState.Error("Request was cancelled")
+            } catch (e: Exception) {
+                ApiResponseState.Error("An unknown error occurred: ${e.message}")
+            }
+        }
+    }
+
+    override suspend fun todayTransaction(token: String): ApiResponseState<TransactionResponse> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = smsApiService.todayTransaction(
+                    token = token
+                )
+                if (response.isSuccessful) {
+                    response.body()?.let {
+                        ApiResponseState.Success(it)
+                    } ?: ApiResponseState.Error("Response body is null")
+                } else {
+
+                    val errorBody = response.errorBody()?.string()
+                    val errorMessage = errorBody?.let {
+                        val jsonObject = Gson().fromJson(it, JsonObject::class.java)
+                        jsonObject.get("message")?.asString ?: "Unknown error"
+                    }
+                    ApiResponseState.Error("Error: ${response.code()} - $errorMessage")
+                }
+            } catch (e: IOException) {
+                ApiResponseState.Error("Network error: ${e.message}")
+            } catch (e: SocketTimeoutException) {
+                ApiResponseState.Error("Request timed out: ${e.message}")
+            } catch (e: HttpException) {
+                ApiResponseState.Error("HTTP error: ${e.message()}")
+            } catch (e: CancellationException) {
+                ApiResponseState.Error("Request was cancelled")
+            } catch (e: Exception) {
+                ApiResponseState.Error("An unknown error occurred: ${e.message}")
+            }
+        }
+    }
+
+    override suspend fun weekTransaction(token: String): ApiResponseState<TransactionResponse> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = smsApiService.weeklyTransaction(
+                    token = token
+                )
+                if (response.isSuccessful) {
+                    response.body()?.let {
+                        ApiResponseState.Success(it)
+                    } ?: ApiResponseState.Error("Response body is null")
+                } else {
+
+                    val errorBody = response.errorBody()?.string()
+                    val errorMessage = errorBody?.let {
+                        val jsonObject = Gson().fromJson(it, JsonObject::class.java)
+                        jsonObject.get("message")?.asString ?: "Unknown error"
+                    }
+                    ApiResponseState.Error("Error: ${response.code()} - $errorMessage")
+                }
+            } catch (e: IOException) {
+                ApiResponseState.Error("Network error: ${e.message}")
+            } catch (e: SocketTimeoutException) {
+                ApiResponseState.Error("Request timed out: ${e.message}")
+            } catch (e: HttpException) {
+                ApiResponseState.Error("HTTP error: ${e.message()}")
+            } catch (e: CancellationException) {
+                ApiResponseState.Error("Request was cancelled")
+            } catch (e: Exception) {
+                ApiResponseState.Error("An unknown error occurred: ${e.message}")
+            }
+        }
+    }
+
+    override suspend fun monthTransaction(token: String): ApiResponseState<TransactionResponse> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = smsApiService.monthlyTransaction(
+                    token = token
+                )
+                if (response.isSuccessful) {
+                    response.body()?.let {
+                        ApiResponseState.Success(it)
+                    } ?: ApiResponseState.Error("Response body is null")
+                } else {
+
+                    val errorBody = response.errorBody()?.string()
+                    val errorMessage = errorBody?.let {
+                        val jsonObject = Gson().fromJson(it, JsonObject::class.java)
+                        jsonObject.get("message")?.asString ?: "Unknown error"
+                    }
+                    ApiResponseState.Error("Error: ${response.code()} - $errorMessage")
+                }
+            } catch (e: IOException) {
+                ApiResponseState.Error("Network error: ${e.message}")
+            } catch (e: SocketTimeoutException) {
+                ApiResponseState.Error("Request timed out: ${e.message}")
+            } catch (e: HttpException) {
+                ApiResponseState.Error("HTTP error: ${e.message()}")
+            } catch (e: CancellationException) {
+                ApiResponseState.Error("Request was cancelled")
+            } catch (e: Exception) {
+                ApiResponseState.Error("An unknown error occurred: ${e.message}")
+            }
+        }
+    }
+
+    override suspend fun yearTransaction(token: String): ApiResponseState<TransactionResponse> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = smsApiService.yearlyTransaction(
+                    token = token
+                )
+                if (response.isSuccessful) {
+                    response.body()?.let {
+                        ApiResponseState.Success(it)
+                    } ?: ApiResponseState.Error("Response body is null")
+                } else {
+
+                    val errorBody = response.errorBody()?.string()
+                    val errorMessage = errorBody?.let {
+                        val jsonObject = Gson().fromJson(it, JsonObject::class.java)
+                        jsonObject.get("message")?.asString ?: "Unknown error"
+                    }
+                    ApiResponseState.Error("Error: ${response.code()} - $errorMessage")
+                }
+            } catch (e: IOException) {
+                ApiResponseState.Error("Network error: ${e.message}")
+            } catch (e: SocketTimeoutException) {
+                ApiResponseState.Error("Request timed out: ${e.message}")
+            } catch (e: HttpException) {
+                ApiResponseState.Error("HTTP error: ${e.message()}")
+            } catch (e: CancellationException) {
+                ApiResponseState.Error("Request was cancelled")
+            } catch (e: Exception) {
+                ApiResponseState.Error("An unknown error occurred: ${e.message}")
+            }
+        }
+    }
+
+    override suspend fun allTransaction(token: String): ApiResponseState<TransactionResponse> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = smsApiService.alltimeTransaction(
+                    token = token
                 )
                 if (response.isSuccessful) {
                     response.body()?.let {

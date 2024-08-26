@@ -1,7 +1,5 @@
 package fd.firad.paymentapp.home.sms.presentation.viewmodel
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fd.firad.paymentapp.common.model.ApiResponseState
@@ -10,6 +8,7 @@ import fd.firad.paymentapp.common.utils.SharedPreferenceManager
 import fd.firad.paymentapp.home.sms.data.model.AllSMSResponse
 import fd.firad.paymentapp.home.sms.data.model.PaymentSMSResponse
 import fd.firad.paymentapp.home.sms.data.model.PaymentSendSmsBody
+import fd.firad.paymentapp.home.sms.data.model.TransactionResponse
 import fd.firad.paymentapp.home.sms.data.model.UpdateSMSStatusResponse
 import fd.firad.paymentapp.home.sms.data.model.UpdateStatusBody
 import fd.firad.paymentapp.home.sms.data.model.UserInfoResponse
@@ -163,6 +162,90 @@ class SMSViewModel @Inject constructor(
                 }
             } catch (e: Exception) {
                 _userInfoState.value = ApiResponseState.Error("An error occurred: ${e.message}")
+            }
+        }
+    }
+
+    private val _transactionState =
+        MutableStateFlow<ApiResponseState<TransactionResponse>>(ApiResponseState.Loading)
+    val transactionState: StateFlow<ApiResponseState<TransactionResponse>> = _transactionState
+
+    fun todayTransaction() {
+        viewModelScope.launch {
+            _transactionState.value = ApiResponseState.Loading
+            try {
+                if (getToken() != null) {
+                    val result = smsUseCase.todayTransaction("Bearer ${getToken()!!}")
+                    _transactionState.value = result
+                } else {
+                    _transactionState.value = ApiResponseState.Error("Token is null")
+                }
+            } catch (e: Exception) {
+                _transactionState.value = ApiResponseState.Error("An error occurred: ${e.message}")
+            }
+        }
+    }
+
+    fun weeklyTransaction() {
+        viewModelScope.launch {
+            _transactionState.value = ApiResponseState.Loading
+            try {
+                if (getToken() != null) {
+                    val result = smsUseCase.weeklyTransaction("Bearer ${getToken()!!}")
+                    _transactionState.value = result
+                } else {
+                    _transactionState.value = ApiResponseState.Error("Token is null")
+                }
+            } catch (e: Exception) {
+                _transactionState.value = ApiResponseState.Error("An error occurred: ${e.message}")
+            }
+        }
+    }
+
+    fun monthlyTransaction() {
+        viewModelScope.launch {
+            _transactionState.value = ApiResponseState.Loading
+            try {
+                if (getToken() != null) {
+                    val result = smsUseCase.monthlyTransaction("Bearer ${getToken()!!}")
+                    _transactionState.value = result
+                } else {
+                    _transactionState.value = ApiResponseState.Error("Token is null")
+                }
+            } catch (e: Exception) {
+                _transactionState.value = ApiResponseState.Error("An error occurred: ${e.message}")
+            }
+        }
+    }
+
+    fun yearlyTransaction() {
+        viewModelScope.launch {
+            _transactionState.value = ApiResponseState.Loading
+            try {
+                if (getToken() != null) {
+                    val result = smsUseCase.yearlyTransaction("Bearer ${getToken()!!}")
+                    _transactionState.value = result
+                } else {
+                    _transactionState.value = ApiResponseState.Error("Token is null")
+                }
+            } catch (e: Exception) {
+                _transactionState.value = ApiResponseState.Error("An error occurred: ${e.message}")
+            }
+        }
+    }
+
+    fun allTimeTransaction() {
+        viewModelScope.launch {
+            _transactionState.value = ApiResponseState.Loading
+            try {
+                if (getToken() != null) {
+                    val result = smsUseCase.allTimeTransaction("Bearer ${getToken()!!}")
+                    _transactionState.value = result
+                } else {
+                    _transactionState.value = ApiResponseState.Error("Token is null")
+                }
+            } catch (e: Exception) {
+                _transactionState.value = ApiResponseState.Error("An error occurred: ${e.message}")
             }
         }
     }

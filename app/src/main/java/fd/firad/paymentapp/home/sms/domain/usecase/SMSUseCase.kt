@@ -5,6 +5,7 @@ import fd.firad.paymentapp.common.model.ApiResponseState
 import fd.firad.paymentapp.home.sms.data.model.AllSMSResponse
 import fd.firad.paymentapp.home.sms.data.model.PaymentSMSResponse
 import fd.firad.paymentapp.home.sms.data.model.PaymentSendSmsBody
+import fd.firad.paymentapp.home.sms.data.model.TransactionResponse
 import fd.firad.paymentapp.home.sms.data.model.UpdateSMSStatusResponse
 import fd.firad.paymentapp.home.sms.data.model.UpdateStatusBody
 import fd.firad.paymentapp.home.sms.data.model.UserInfoResponse
@@ -70,6 +71,47 @@ class SMSUseCase @Inject constructor(private val smsRepository: SMSRepository) {
             apiKey = apiKey,
             secretKey = secretKey,
             request = request
+        )
+    }
+
+
+    suspend fun todayTransaction(
+        token: String,
+    ): ApiResponseState<TransactionResponse> {
+        return smsRepository.todayTransaction(
+            token = token
+        )
+    }
+
+    suspend fun weeklyTransaction(
+        token: String,
+    ): ApiResponseState<TransactionResponse> {
+        return smsRepository.weekTransaction(
+            token = token
+        )
+    }
+
+    suspend fun monthlyTransaction(
+        token: String,
+    ): ApiResponseState<TransactionResponse> {
+        return smsRepository.monthTransaction(
+            token = token
+        )
+    }
+
+    suspend fun yearlyTransaction(
+        token: String,
+    ): ApiResponseState<TransactionResponse> {
+        return smsRepository.yearTransaction(
+            token = token
+        )
+    }
+
+    suspend fun allTimeTransaction(
+        token: String,
+    ): ApiResponseState<TransactionResponse> {
+        return smsRepository.allTransaction(
+            token = token
         )
     }
 }

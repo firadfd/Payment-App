@@ -21,6 +21,8 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import fd.firad.paymentapp.home.sms.presentation.SendSmsResult
 import java.io.ByteArrayOutputStream
 import java.io.IOException
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 
 object Constants {
     const val BASE_URL = "https://api.codexen.co/api/"
@@ -73,6 +75,14 @@ object Constants {
             return SendSmsResult.Failure(Throwable("Failed to send SMS: ${e.message}"))
         }
     }
+
+
+    fun convertIsoToCustomFormat(isoDate: String): String {
+        val zonedDateTime = ZonedDateTime.parse(isoDate).plusHours(6)
+        val formatter = DateTimeFormatter.ofPattern("hh:mma dd-MM-yyyy")
+        return zonedDateTime.format(formatter).lowercase()
+    }
+
 
 
 }

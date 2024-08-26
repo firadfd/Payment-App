@@ -23,6 +23,7 @@ import fd.firad.paymentapp.home.sms.domain.usecase.SMSUseCase
 import fd.firad.paymentapp.home.sms.presentation.SendSmsResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -37,7 +38,7 @@ class SmsService : Service() {
     @Inject
     lateinit var sharedPreferenceManager: SharedPreferenceManager
 
-    private val serviceScope = CoroutineScope(Dispatchers.IO)
+    private val serviceScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate() {
@@ -61,7 +62,8 @@ class SmsService : Service() {
                 val response = smsUseCase.pendingSms("Bearer $token", apiKey, secretKey)
                 when (response) {
                     is ApiResponseState.Success -> {
-                        val filteredList = response.data.data.distinctBy { it.id }
+                        val filteredList =
+                            response.data.data.distinctBy { it.id }.filter { it.status != "sent" }
                         filteredList.forEach { sms ->
                             val result =
                                 sendSMS(applicationContext, sms.id, sms.number, sms.message)
@@ -97,7 +99,7 @@ class SmsService : Service() {
                 }
 //                delay(3000)
             }
-            delay(120000)
+//            delay(120000)
         }
 
         setUpAlarm()
@@ -114,16 +116,13 @@ class SmsService : Service() {
         serviceScope.cancel()
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun createNotification(): Notification {
         val channelId = "ForegroundServiceChannel"
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                channelId, "Foreground Service", NotificationManager.IMPORTANCE_DEFAULT
-            )
-            val manager = getSystemService(NotificationManager::class.java)
-            manager.createNotificationChannel(channel)
-        }
+        val channel = NotificationChannel(
+            channelId, "Foreground Service", NotificationManager.IMPORTANCE_DEFAULT
+        )
+        val manager = getSystemService(NotificationManager::class.java)
+        manager.createNotificationChannel(channel)
 
         return Notification.Builder(this, channelId)
             .setContentTitle("SMS Service Running")
