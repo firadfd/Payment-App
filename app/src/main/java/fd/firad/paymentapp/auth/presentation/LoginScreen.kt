@@ -1,6 +1,5 @@
 package fd.firad.paymentapp.auth.presentation
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -170,7 +169,7 @@ fun LoginScreen(
                     cornerRadius = 5.dp
                 ) {
                     keyboardController?.hide()
-                    if ((email.isNotEmpty() && isEmailValid(email)) || (email.isNotEmpty() && email.length in 6..11) ) {
+                    if ((email.isNotEmpty() && isEmailValid(email)) || (email.isNotEmpty() && email.length in 6..11)) {
                         if (password.isNotEmpty() && password.length >= 6) {
                             callApi = true
                             viewModel.userSignIn(
