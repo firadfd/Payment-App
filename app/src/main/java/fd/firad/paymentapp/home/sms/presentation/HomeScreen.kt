@@ -111,7 +111,6 @@ fun HomeScreen(navController: NavHostController, viewModel: SMSViewModel = hiltV
     }
 
 
-
     val failedSmsList by viewModel.failedSmsList.collectAsState(emptyList())
 
     val batteryOptimizationLauncher = rememberLauncherForActivityResult(
@@ -510,7 +509,8 @@ private fun requestSmsPermissionBelowAndroid13(context: Context) {
     val smsPermissions = arrayOf(
         Manifest.permission.RECEIVE_SMS,
         Manifest.permission.SEND_SMS,
-        Manifest.permission.READ_PHONE_STATE
+        Manifest.permission.READ_PHONE_STATE,
+        Manifest.permission.READ_EXTERNAL_STORAGE
     )
     Dexter.withContext(context).withPermissions(*smsPermissions)
         .withListener(object : MultiplePermissionsListener {
@@ -536,7 +536,8 @@ private fun requestSmsPermissionAboveAndroid13(context: Context) {
         Manifest.permission.RECEIVE_SMS,
         Manifest.permission.SEND_SMS,
         Manifest.permission.POST_NOTIFICATIONS,
-        Manifest.permission.READ_PHONE_STATE
+        Manifest.permission.READ_PHONE_STATE,
+        Manifest.permission.READ_MEDIA_IMAGES
     )
 
     Dexter.withContext(context).withPermissions(*smsPermissions)

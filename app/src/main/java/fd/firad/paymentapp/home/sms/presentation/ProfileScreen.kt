@@ -1,6 +1,11 @@
 package fd.firad.paymentapp.home.sms.presentation
 
+import android.content.Intent
+import android.net.Uri
+import android.provider.Settings
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -17,7 +22,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.NavigateNext
 import androidx.compose.material.icons.filled.Verified
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -63,13 +71,53 @@ fun ProfileScreen(
 ) {
     val context = LocalContext.current
     var loading by remember { mutableStateOf(false) }
-    var image by remember { mutableStateOf("") }
+    var imageUrl by remember { mutableStateOf("") }
     var name by remember { mutableStateOf("") }
     var userStatus by remember { mutableStateOf(false) }
     var dataLoaded by rememberSaveable { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState()
     var showBottomSheet by remember {
         mutableStateOf(false)
+    }
+
+    // Image picker launcher
+    var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        selectedImageUri = uri
+    }
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        if (isGranted) {
+            launcher.launch("image/*")
+        } else {
+            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                data = Uri.fromParts("package", context.packageName, null)
+            }
+            context.startActivity(intent)
+        }
+    }
+
+    fun pickImage() {
+        when {
+            // For Android 13+ (SDK 33+)
+            android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU -> {
+                permissionLauncher.launch(android.Manifest.permission.READ_MEDIA_IMAGES)
+            }
+
+            // For Android 10 to 12 (SDK 29 to 32)
+            android.os.Build.VERSION.SDK_INT in android.os.Build.VERSION_CODES.Q..android.os.Build.VERSION_CODES.S -> {
+                permissionLauncher.launch(android.Manifest.permission.READ_EXTERNAL_STORAGE)
+            }
+
+            // For Android 6.0 to Android 9 (SDK 23 to 28)
+            else -> {
+                permissionLauncher.launch(android.Manifest.permission.READ_EXTERNAL_STORAGE)
+            }
+        }
     }
 
     if (showBottomSheet) {
@@ -154,7 +202,7 @@ fun ProfileScreen(
                         dataLoaded = true
                         if (state.data.status) {
                             name = state.data.user.name
-                            image = state.data.user.profile_image
+                            imageUrl = state.data.user.profile_image
                                 ?: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT-qGN4p3D0Vvl6F3tg37qRWmknI78ka5nyut0Vrf6xelsLnB3-weNxq13bHjN-s5hvSNE&usqp=CAU"
                             if (state.data.subscriptions.api[0].api_key != null && state.data.subscriptions.api[0].secret_key != null) {
                                 viewModel.saveApiToken(state.data.subscriptions.api[0].api_key!!)
@@ -185,13 +233,15 @@ fun ProfileScreen(
         }
         Spacer(modifier = Modifier.height(30.dp))
         Box(modifier = Modifier.size(80.dp)) {
-            AsyncImage(model = image,
+            AsyncImage(model = selectedImageUri ?: imageUrl,
                 contentDescription = "User Image",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .matchParentSize()
                     .clip(CircleShape)
-                    .clickable { }
+                    .clickable {
+                       pickImage()
+                    }
                     .background(Color.Gray))
 
             if (userStatus) {
@@ -214,8 +264,18 @@ fun ProfileScreen(
         )
         Spacer(modifier = Modifier.height(10.dp))
         ProfileItem(
-            icon = Icons.Default.Lock,
-            title = "Edit Profile",
+            icon = Icons.Default.Edit,
+            title = "Change Name",
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+        ) {
+
+        }
+        Spacer(modifier = Modifier.height(10.dp))
+        ProfileItem(
+            icon = Icons.Default.Email,
+            title = "Change Email",
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp)
@@ -234,27 +294,7 @@ fun ProfileScreen(
         }
         Spacer(modifier = Modifier.height(10.dp))
         ProfileItem(
-            icon = Icons.Default.Lock,
-            title = "Change Password",
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp)
-        ) {
-
-        }
-        Spacer(modifier = Modifier.height(10.dp))
-        ProfileItem(
-            icon = Icons.Default.Lock,
-            title = "Change Password",
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp)
-        ) {
-
-        }
-        Spacer(modifier = Modifier.height(10.dp))
-        ProfileItem(
-            icon = Icons.Default.Lock,
+            icon = Icons.Default.Logout,
             title = "Log Out",
             modifier = Modifier
                 .fillMaxWidth()
@@ -264,6 +304,7 @@ fun ProfileScreen(
         }
     }
 }
+
 
 
 @Composable
