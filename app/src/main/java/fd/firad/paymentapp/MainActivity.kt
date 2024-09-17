@@ -28,23 +28,15 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setUpAlarm()
+//        setUpAlarm()
         enableEdgeToEdge()
         setContent {
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                requestSmsPermissionAboveAndroid13()
-            } else {
-                requestSmsPermissionBelowAndroid13()
-            }
-
             PaymentAppTheme {
                 RootNavHost(navController = rememberNavController())
             }
 
         }
     }
-
 
     private fun setUpAlarm() {
         val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
@@ -59,60 +51,6 @@ class MainActivity : ComponentActivity() {
             intervalMillis,
             pendingIntent
         )
-    }
-
-
-    private fun requestSmsPermissionBelowAndroid13() {
-        val smsPermissions = arrayOf(
-            Manifest.permission.RECEIVE_SMS,
-            Manifest.permission.SEND_SMS,
-            Manifest.permission.READ_PHONE_STATE
-        )
-        Dexter.withContext(this).withPermissions(*smsPermissions)
-            .withListener(object : MultiplePermissionsListener {
-                override fun onPermissionsChecked(report: MultiplePermissionsReport?) {
-                    if (report?.areAllPermissionsGranted() == true) {
-
-                    } else {
-
-                    }
-                }
-
-                override fun onPermissionRationaleShouldBeShown(
-                    permissions: MutableList<PermissionRequest>?, token: PermissionToken?
-                ) {
-                    token?.continuePermissionRequest()
-
-                }
-            }).check()
-    }
-
-    private fun requestSmsPermissionAboveAndroid13() {
-        val smsPermissions = arrayOf(
-            Manifest.permission.RECEIVE_SMS,
-            Manifest.permission.SEND_SMS,
-            Manifest.permission.POST_NOTIFICATIONS,
-            Manifest.permission.READ_PHONE_STATE
-        )
-
-        Dexter.withContext(this).withPermissions(*smsPermissions)
-            .withListener(object : MultiplePermissionsListener {
-                override fun onPermissionsChecked(report: MultiplePermissionsReport?) {
-                    if (report?.areAllPermissionsGranted() == true) {
-
-                    } else {
-
-                    }
-                }
-
-                override fun onPermissionRationaleShouldBeShown(
-                    permissions: MutableList<PermissionRequest>?, token: PermissionToken?
-                ) {
-                    token?.continuePermissionRequest()
-
-                }
-            }).check()
-
     }
 
 

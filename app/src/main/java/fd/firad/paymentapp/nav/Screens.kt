@@ -9,4 +9,7 @@ object ScreenLogin
 object ScreenRegistration
 
 @Serializable
-data class ScreenSendSms(val phone: String)
+object ScreenForgetPassword
+
+@Serializable
+data class ScreenForgetPasswordOTP(val email: String)

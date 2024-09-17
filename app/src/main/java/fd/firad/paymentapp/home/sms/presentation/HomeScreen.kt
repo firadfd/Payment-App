@@ -1,9 +1,11 @@
 package fd.firad.paymentapp.home.sms.presentation
 
+import android.Manifest
 import android.content.Context
 import android.content.Intent
 import android.graphics.Typeface
 import android.net.Uri
+import android.os.Build
 import android.os.PowerManager
 import android.provider.Settings
 import android.widget.Toast
@@ -68,6 +70,11 @@ import com.github.mikephil.charting.charts.PieChart
 import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
+import com.karumi.dexter.Dexter
+import com.karumi.dexter.MultiplePermissionsReport
+import com.karumi.dexter.PermissionToken
+import com.karumi.dexter.listener.PermissionRequest
+import com.karumi.dexter.listener.multi.MultiplePermissionsListener
 import fd.firad.paymentapp.common.model.ApiResponseState
 import fd.firad.paymentapp.home.sms.presentation.viewmodel.SMSViewModel
 import fd.firad.paymentapp.service.SmsService
@@ -96,6 +103,13 @@ fun HomeScreen(navController: NavHostController, viewModel: SMSViewModel = hiltV
     val powerManager = remember {
         context.getSystemService(Context.POWER_SERVICE) as PowerManager
     }
+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        requestSmsPermissionAboveAndroid13(context)
+    } else {
+        requestSmsPermissionBelowAndroid13(context)
+    }
+
 
 
     val failedSmsList by viewModel.failedSmsList.collectAsState(emptyList())
@@ -490,4 +504,57 @@ fun PieChartView(
         chart.centerText = label
         chart.invalidate()
     })
+}
+
+private fun requestSmsPermissionBelowAndroid13(context: Context) {
+    val smsPermissions = arrayOf(
+        Manifest.permission.RECEIVE_SMS,
+        Manifest.permission.SEND_SMS,
+        Manifest.permission.READ_PHONE_STATE
+    )
+    Dexter.withContext(context).withPermissions(*smsPermissions)
+        .withListener(object : MultiplePermissionsListener {
+            override fun onPermissionsChecked(report: MultiplePermissionsReport?) {
+                if (report?.areAllPermissionsGranted() == true) {
+
+                } else {
+
+                }
+            }
+
+            override fun onPermissionRationaleShouldBeShown(
+                permissions: MutableList<PermissionRequest>?, token: PermissionToken?
+            ) {
+                token?.continuePermissionRequest()
+
+            }
+        }).check()
+}
+
+private fun requestSmsPermissionAboveAndroid13(context: Context) {
+    val smsPermissions = arrayOf(
+        Manifest.permission.RECEIVE_SMS,
+        Manifest.permission.SEND_SMS,
+        Manifest.permission.POST_NOTIFICATIONS,
+        Manifest.permission.READ_PHONE_STATE
+    )
+
+    Dexter.withContext(context).withPermissions(*smsPermissions)
+        .withListener(object : MultiplePermissionsListener {
+            override fun onPermissionsChecked(report: MultiplePermissionsReport?) {
+                if (report?.areAllPermissionsGranted() == true) {
+
+                } else {
+
+                }
+            }
+
+            override fun onPermissionRationaleShouldBeShown(
+                permissions: MutableList<PermissionRequest>?, token: PermissionToken?
+            ) {
+                token?.continuePermissionRequest()
+
+            }
+        }).check()
+
 }

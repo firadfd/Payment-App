@@ -16,3 +16,8 @@ data class UserPayload(
 data class AuthSignInResponse(
     val status: Boolean, val token: String, val message: String, val token_type: String
 )
+
+data class ForgotPasswordResponse(
+    val status: Boolean, val message: String, val errors: String? = null
+)
+

@@ -8,3 +8,11 @@ data class UserSignUpBody(
 )
 
 data class UserSignInBody(val login: String, val password: String)
+
+data class ForgotPasswordBody(val login: String)
+
+data class VerifyOTPBody(
+    val login: String,
+    val otp: String,
+    val password: String,
+)

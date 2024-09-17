@@ -163,7 +163,11 @@ fun MainNavHost(rootNavController: NavHostController) {
                     SMSHistoryScreen(navController = navController)
                 }
                 composable("ScreenProfile") {
-                    ProfileScreen(navController = navController)
+                    ProfileScreen(navController = navController, isLogout = {
+                        rootNavController.navigate("AuthNavHost") {
+                            popUpTo("MainNavHost") { inclusive = true }
+                        }
+                    })
                 }
             }
         }

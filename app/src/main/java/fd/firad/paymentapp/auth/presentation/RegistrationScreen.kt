@@ -1,13 +1,6 @@
 package fd.firad.paymentapp.auth.presentation
 
 
-import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.net.Uri
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -17,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
@@ -51,7 +43,6 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import coil.compose.rememberImagePainter
 import com.stevdzasan.messagebar.ContentWithMessageBar
 import com.stevdzasan.messagebar.MessageBarPosition
 import com.stevdzasan.messagebar.rememberMessageBarState
@@ -60,15 +51,12 @@ import fd.firad.paymentapp.auth.presentation.viewmodel.AuthViewModel
 import fd.firad.paymentapp.common.constants.isEmailValid
 import fd.firad.paymentapp.common.model.ApiResponseState
 import fd.firad.paymentapp.common.presentation.CustomButton
-import fd.firad.paymentapp.common.presentation.CustomPickImage
 import fd.firad.paymentapp.common.presentation.CustomTextInputField
 import fd.firad.paymentapp.common.presentation.PasswordTextInputField
 import fd.firad.paymentapp.nav.navigateBack
 import fd.firad.paymentapp.ui.theme.blueColor
 import fd.firad.paymentapp.ui.theme.textColor
 import kotlinx.coroutines.delay
-import java.io.ByteArrayOutputStream
-import java.io.IOException
 
 @Composable
 fun RegistrationScreen(

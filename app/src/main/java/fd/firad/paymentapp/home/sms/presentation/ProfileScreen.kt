@@ -20,8 +20,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.NavigateNext
 import androidx.compose.material.icons.filled.Verified
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -37,24 +40,95 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import fd.firad.paymentapp.common.model.ApiResponseState
+import fd.firad.paymentapp.common.presentation.CustomButton
 import fd.firad.paymentapp.common.presentation.CustomTopBar
 import fd.firad.paymentapp.home.sms.presentation.viewmodel.SMSViewModel
+import fd.firad.paymentapp.ui.theme.blueColor
+import fd.firad.paymentapp.ui.theme.textColor
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileScreen(navController: NavHostController, viewModel: SMSViewModel = hiltViewModel()) {
+fun ProfileScreen(
+    navController: NavHostController,
+    viewModel: SMSViewModel = hiltViewModel(),
+    isLogout: () -> Unit
+) {
     val context = LocalContext.current
     var loading by remember { mutableStateOf(false) }
     var image by remember { mutableStateOf("") }
     var name by remember { mutableStateOf("") }
     var userStatus by remember { mutableStateOf(false) }
     var dataLoaded by rememberSaveable { mutableStateOf(false) }
+    val sheetState = rememberModalBottomSheetState()
+    var showBottomSheet by remember {
+        mutableStateOf(false)
+    }
+
+    if (showBottomSheet) {
+        ModalBottomSheet(
+            onDismissRequest = { showBottomSheet = false },
+            sheetState = sheetState,
+            containerColor = Color(0xFF1F2937)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 10.dp, end = 10.dp),
+                verticalArrangement = Arrangement.Top,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Spacer(modifier = Modifier.height(20.dp))
+                Text(
+                    text = "Are you sure to logout?",
+                    modifier = Modifier.fillMaxWidth(.9f),
+                    textAlign = TextAlign.Start,
+                    style = TextStyle(
+                        color = textColor, fontSize = 18.sp
+                    )
+                )
+                Spacer(modifier = Modifier.height(30.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(.9f),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+
+                    CustomButton(
+                        text = "Cancel",
+                        color = blueColor,
+                        modifier = Modifier.weight(1f),
+                        textColor = Color.White,
+                        cornerRadius = 5.dp
+                    ) {
+                        showBottomSheet = false
+                    }
+                    Spacer(modifier = Modifier.weight(.1f))
+                    CustomButton(
+                        text = "Logout",
+                        color = Color(0xFFEF4444),
+                        modifier = Modifier.weight(1f),
+                        textColor = Color.White,
+                        cornerRadius = 5.dp
+                    ) {
+                        showBottomSheet = false
+                        viewModel.deleteToken()
+                        viewModel.deleteApiToken()
+                        viewModel.deleteSecretKey()
+                        isLogout.invoke()
+                    }
+                }
+                Spacer(modifier = Modifier.height(40.dp))
+            }
+        }
+    }
 
     if (!dataLoaded) {
         LaunchedEffect(viewModel) {
@@ -141,7 +215,7 @@ fun ProfileScreen(navController: NavHostController, viewModel: SMSViewModel = hi
         Spacer(modifier = Modifier.height(10.dp))
         ProfileItem(
             icon = Icons.Default.Lock,
-            title = "Change Password",
+            title = "Edit Profile",
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp)
@@ -181,15 +255,13 @@ fun ProfileScreen(navController: NavHostController, viewModel: SMSViewModel = hi
         Spacer(modifier = Modifier.height(10.dp))
         ProfileItem(
             icon = Icons.Default.Lock,
-            title = "Change Password",
+            title = "Log Out",
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp)
         ) {
-
+            showBottomSheet = true
         }
-
-
     }
 }
 

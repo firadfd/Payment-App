@@ -4,8 +4,11 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fd.firad.paymentapp.auth.data.model.AuthSignInResponse
 import fd.firad.paymentapp.auth.data.model.AuthSignUpResponse
+import fd.firad.paymentapp.auth.data.model.ForgotPasswordBody
+import fd.firad.paymentapp.auth.data.model.ForgotPasswordResponse
 import fd.firad.paymentapp.auth.data.model.UserSignInBody
 import fd.firad.paymentapp.auth.data.model.UserSignUpBody
+import fd.firad.paymentapp.auth.data.model.VerifyOTPBody
 import fd.firad.paymentapp.auth.domain.usecase.UserAuthUseCase
 import fd.firad.paymentapp.common.model.ApiResponseState
 import fd.firad.paymentapp.common.presentation.BaseViewModel
@@ -54,4 +57,42 @@ class AuthViewModel @Inject constructor(
             }
         }
     }
+
+    //3
+    private val _forgotPasswordState =
+        MutableStateFlow<ApiResponseState<ForgotPasswordResponse>>(ApiResponseState.Loading)
+    val forgotPasswordState: StateFlow<ApiResponseState<ForgotPasswordResponse>> =
+        _forgotPasswordState
+
+    fun forgotPassword(request: ForgotPasswordBody) {
+        viewModelScope.launch {
+            _forgotPasswordState.value = ApiResponseState.Loading
+            try {
+                val result = userLogInUseCase.userForgotPassword(request)
+                _forgotPasswordState.value = result
+            } catch (e: Exception) {
+                _forgotPasswordState.value =
+                    ApiResponseState.Error("An error occurred: ${e.message}")
+            }
+        }
+    }
+
+    //4
+    private val _verifyOTPState =
+        MutableStateFlow<ApiResponseState<ForgotPasswordResponse>>(ApiResponseState.Loading)
+    val verifyOTPState: StateFlow<ApiResponseState<ForgotPasswordResponse>> = _verifyOTPState
+
+    fun verifyOtp(request: VerifyOTPBody) {
+        viewModelScope.launch {
+            _verifyOTPState.value = ApiResponseState.Loading
+            try {
+                val result = userLogInUseCase.userVerifyOtp(request)
+                _verifyOTPState.value = result
+            } catch (e: Exception) {
+                _verifyOTPState.value = ApiResponseState.Error("An error occurred: ${e.message}")
+            }
+        }
+    }
+
+
 }
