@@ -150,12 +150,12 @@ class SMSViewModel @Inject constructor(
         MutableStateFlow<ApiResponseState<UserInfoResponse>>(ApiResponseState.Loading)
     val userInfoState: StateFlow<ApiResponseState<UserInfoResponse>> = _userInfoState
 
-    fun userInfo() {
+    fun userInfo(forceFetch: Boolean = false) {
         viewModelScope.launch {
             _userInfoState.value = ApiResponseState.Loading
             try {
                 if (getToken() != null) {
-                    val result = smsUseCase.userInfo("Bearer ${getToken()!!}")
+                    val result = smsUseCase.userInfo("Bearer ${getToken()!!}",forceFetch)
                     _userInfoState.value = result
                 } else {
                     _userInfoState.value = ApiResponseState.Error("Token is null")
@@ -165,6 +165,7 @@ class SMSViewModel @Inject constructor(
             }
         }
     }
+
 
     private val _transactionState =
         MutableStateFlow<ApiResponseState<TransactionResponse>>(ApiResponseState.Loading)

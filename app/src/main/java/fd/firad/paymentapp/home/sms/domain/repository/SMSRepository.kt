@@ -38,8 +38,9 @@ interface SMSRepository {
     ): ApiResponseState<PaymentSMSResponse>
 
     suspend fun userInfo(
-        token: String
+        token: String,forceFetch:Boolean
     ): ApiResponseState<UserInfoResponse>
+
 
     suspend fun updateStatus(
         token: String,

@@ -53,9 +53,9 @@ class SMSUseCase @Inject constructor(private val smsRepository: SMSRepository) {
     }
 
     suspend fun userInfo(
-        token: String
+        token: String,forceFetch: Boolean
     ): ApiResponseState<UserInfoResponse> {
-        return smsRepository.userInfo(token)
+        return smsRepository.userInfo(token,forceFetch)
     }
 
     suspend fun updateSmsStatus(

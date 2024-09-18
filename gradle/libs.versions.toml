@@ -22,6 +22,7 @@ messagebarcompose = "1.0.8"
 moshiKotlin = "1.14.0"
 moshiCodegen = "1.14.0"
 navigationCompose = "2.8.0"
+pullrefresh = "1.4.0-beta03"
 roomTesting = "2.6.1"
 serialization = "1.6.3"
 okhttp = "4.11.0"
@@ -79,6 +80,7 @@ moshi-codegen = { module = "com.squareup.moshi:moshi-kotlin-codegen", version.re
 mpandroidchart = { module = "com.github.PhilJay:MPAndroidChart", version.ref = "mpandroidchart" }
 okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
 oneSignal = { module = "com.onesignal:OneSignal", version.ref = "onesignal" }
+pullrefresh = { module = "dev.materii.pullrefresh:pullrefresh", version.ref = "pullrefresh" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "uiToolingPreview" }
 androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "coreSplashscreen" }

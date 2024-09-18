@@ -1,4 +1,4 @@
-package fd.firad.paymentapp.home.sms.data.api
+package fd.firad.paymentapp.home.sms.data.remote
 
 import fd.firad.paymentapp.home.sms.data.model.AllSMSResponse
 import fd.firad.paymentapp.home.sms.data.model.PaymentSMSResponse

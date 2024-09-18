@@ -49,6 +49,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -75,9 +76,13 @@ import com.karumi.dexter.MultiplePermissionsReport
 import com.karumi.dexter.PermissionToken
 import com.karumi.dexter.listener.PermissionRequest
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener
+import dev.materii.pullrefresh.PullRefreshLayout
+import dev.materii.pullrefresh.rememberPullRefreshState
 import fd.firad.paymentapp.common.model.ApiResponseState
 import fd.firad.paymentapp.home.sms.presentation.viewmodel.SMSViewModel
 import fd.firad.paymentapp.service.SmsService
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import android.graphics.Color as AndroidColor
 
 
@@ -103,6 +108,20 @@ fun HomeScreen(navController: NavHostController, viewModel: SMSViewModel = hiltV
     val powerManager = remember {
         context.getSystemService(Context.POWER_SERVICE) as PowerManager
     }
+
+    val scope = rememberCoroutineScope()
+    var isRefreshing by remember {
+        mutableStateOf(false)
+    }
+    val pullRefreshState = rememberPullRefreshState(refreshing = isRefreshing, onRefresh = {
+        isRefreshing = true
+        scope.launch {
+            viewModel.userInfo(true)
+            delay(1500)
+            isRefreshing = false
+        }
+
+    })
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         requestSmsPermissionAboveAndroid13(context)
@@ -205,146 +224,150 @@ fun HomeScreen(navController: NavHostController, viewModel: SMSViewModel = hiltV
     }
 
 
-    Column(
-        verticalArrangement = Arrangement.Top,
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
-            .fillMaxSize()
-            .background(color = Color.White)
+    PullRefreshLayout(
+        modifier = Modifier, state = pullRefreshState
     ) {
-        PinnedChatsTopBar(
-            name = name,
-            image = image,
-            emailStatus = userStatus,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(70.dp)
-
-        ) {
-
-        }
         Column(
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .fillMaxSize()
-                .verticalScroll(state)
                 .background(color = Color.White)
         ) {
-            Spacer(modifier = Modifier.height(10.dp))
-            SMSStatusItem(
-                Icons.Default.Send,
-                "Total SMS Send",
-                "",
-                "$totalSMSSend",
-                Color(0xffDCFCE7),
-                iconTint = Color(0xff88D66C),
+            PinnedChatsTopBar(
+                name = name,
+                image = image,
+                emailStatus = userStatus,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 10.dp, end = 10.dp)
+                    .height(70.dp)
+
             ) {
 
             }
-            Spacer(modifier = Modifier.height(10.dp))
-            SMSStatusItem(
-                Icons.Default.AccessTime,
-                "Pending SMS",
-                "",
-                "$totalSMSPending",
-                color = Color(0xffDBEAFE),
-                iconTint = Color(0xff40534C),
+            Column(
+                verticalArrangement = Arrangement.Top,
+                horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 10.dp, end = 10.dp)
+                    .fillMaxSize()
+                    .verticalScroll(state)
+                    .background(color = Color.White)
             ) {
-
-            }
-            Spacer(modifier = Modifier.height(10.dp))
-            SMSStatusItem(
-                Icons.Default.SmsFailed,
-                "Total Payment SMS Send",
-                "",
-                "$totalPaymentSMSSend",
-                color = Color(0xffF8EDE3),
-                iconTint = Color(0xff88D66C),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 10.dp, end = 10.dp)
-            ) {
-
-            }
-            Spacer(modifier = Modifier.height(10.dp))
-            SMSStatusItem(
-                Icons.Default.History,
-                "Failed Payment SMS",
-                "",
-                "${failedSmsList.size}",
-                Color(0xffFEF9C3),
-                iconTint = Color(0xffFF4E88),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 10.dp, end = 10.dp)
-            ) {
-
-            }
-            Spacer(modifier = Modifier.height(10.dp))
-            val entries = listOf(
-                PieEntry(bkash.toFloat(), "Bkash"),
-                PieEntry(rocket.toFloat(), "Rocket"),
-                PieEntry(nagad.toFloat(), "Nagad"),
-                PieEntry(upay.toFloat(), "Upay")
-            )
-            ScrollableTabRow(selectedTabIndex = selectedTabIndex,
-                modifier = Modifier.fillMaxWidth(),
-                containerColor = Color.Transparent,
-                contentColor = Color.White,
-                divider = {},
-                edgePadding = 0.dp,
-                indicator = { tabPositions ->
-                    if (tabPositions.isNotEmpty()) {
-                        val selectedTabPosition = tabPositions[selectedTabIndex]
-                        Box(
-                            modifier = Modifier
-                                .tabIndicatorOffset(selectedTabPosition)
-                                .height(1.dp)
-                                .background(Color.Red)
-                        )
-                    }
-                }) {
-                tabs.forEachIndexed { index, title ->
-                    Tab(
-                        selected = selectedTabIndex == index,
-                        onClick = { selectedTabIndex = index },
-                        text = {
-                            Text(
-                                text = title,
-                                color = if (selectedTabIndex == index) Color.Red else Color.Black,
-                                fontSize = 14.sp,
-                                fontWeight = if (selectedTabIndex == index) FontWeight.Bold else FontWeight.Normal
-                            )
-                        },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
-            }
-            Spacer(modifier = Modifier.height(5.dp))
-            Box(modifier = Modifier.fillMaxSize()) {
-                when (selectedTabIndex) {
-                    0 -> viewModel.todayTransaction()
-                    1 -> viewModel.weeklyTransaction()
-                    2 -> viewModel.monthlyTransaction()
-                    3 -> viewModel.yearlyTransaction()
-                    4 -> viewModel.allTimeTransaction()
-                }
-                PieChartView(
-                    entries = entries,
-                    label = total,
+                Spacer(modifier = Modifier.height(10.dp))
+                SMSStatusItem(
+                    Icons.Default.Send,
+                    "Total SMS Send",
+                    "",
+                    "$totalSMSSend",
+                    Color(0xffDCFCE7),
+                    iconTint = Color(0xff88D66C),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .size(300.dp)
+                        .padding(start = 10.dp, end = 10.dp)
+                ) {
+
+                }
+                Spacer(modifier = Modifier.height(10.dp))
+                SMSStatusItem(
+                    Icons.Default.AccessTime,
+                    "Pending SMS",
+                    "",
+                    "$totalSMSPending",
+                    color = Color(0xffDBEAFE),
+                    iconTint = Color(0xff40534C),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 10.dp, end = 10.dp)
+                ) {
+
+                }
+                Spacer(modifier = Modifier.height(10.dp))
+                SMSStatusItem(
+                    Icons.Default.SmsFailed,
+                    "Total Payment SMS Send",
+                    "",
+                    "$totalPaymentSMSSend",
+                    color = Color(0xffF8EDE3),
+                    iconTint = Color(0xff88D66C),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 10.dp, end = 10.dp)
+                ) {
+
+                }
+                Spacer(modifier = Modifier.height(10.dp))
+                SMSStatusItem(
+                    Icons.Default.History,
+                    "Failed Payment SMS",
+                    "",
+                    "${failedSmsList.size}",
+                    Color(0xffFEF9C3),
+                    iconTint = Color(0xffFF4E88),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 10.dp, end = 10.dp)
+                ) {
+
+                }
+                Spacer(modifier = Modifier.height(10.dp))
+                val entries = listOf(
+                    PieEntry(bkash.toFloat(), "Bkash"),
+                    PieEntry(rocket.toFloat(), "Rocket"),
+                    PieEntry(nagad.toFloat(), "Nagad"),
+                    PieEntry(upay.toFloat(), "Upay")
                 )
+                ScrollableTabRow(selectedTabIndex = selectedTabIndex,
+                    modifier = Modifier.fillMaxWidth(),
+                    containerColor = Color.Transparent,
+                    contentColor = Color.White,
+                    divider = {},
+                    edgePadding = 0.dp,
+                    indicator = { tabPositions ->
+                        if (tabPositions.isNotEmpty()) {
+                            val selectedTabPosition = tabPositions[selectedTabIndex]
+                            Box(
+                                modifier = Modifier
+                                    .tabIndicatorOffset(selectedTabPosition)
+                                    .height(1.dp)
+                                    .background(Color.Red)
+                            )
+                        }
+                    }) {
+                    tabs.forEachIndexed { index, title ->
+                        Tab(
+                            selected = selectedTabIndex == index,
+                            onClick = { selectedTabIndex = index },
+                            text = {
+                                Text(
+                                    text = title,
+                                    color = if (selectedTabIndex == index) Color.Red else Color.Black,
+                                    fontSize = 14.sp,
+                                    fontWeight = if (selectedTabIndex == index) FontWeight.Bold else FontWeight.Normal
+                                )
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.height(5.dp))
+                Box(modifier = Modifier.fillMaxSize()) {
+                    when (selectedTabIndex) {
+                        0 -> viewModel.todayTransaction()
+                        1 -> viewModel.weeklyTransaction()
+                        2 -> viewModel.monthlyTransaction()
+                        3 -> viewModel.yearlyTransaction()
+                        4 -> viewModel.allTimeTransaction()
+                    }
+                    PieChartView(
+                        entries = entries,
+                        label = total,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .size(300.dp)
+                    )
+                }
+                Spacer(modifier = Modifier.height(30.dp))
             }
-            Spacer(modifier = Modifier.height(30.dp))
         }
     }
 }
@@ -559,3 +582,4 @@ private fun requestSmsPermissionAboveAndroid13(context: Context) {
         }).check()
 
 }
+

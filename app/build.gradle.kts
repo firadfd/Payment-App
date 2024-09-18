@@ -143,4 +143,6 @@ dependencies {
 
     implementation(libs.mpandroidchart)
 
+    //pull to refresh
+    implementation(libs.pullrefresh)
 }

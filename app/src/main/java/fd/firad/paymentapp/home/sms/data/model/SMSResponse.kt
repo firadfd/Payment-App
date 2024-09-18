@@ -1,5 +1,8 @@
 package fd.firad.paymentapp.home.sms.data.model
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
 data class SendSMSResponse(
     val status: String, val message: String, val data: SendSMSData
 )
@@ -36,7 +39,10 @@ data class PaymentSMSResponse(
     val status: Boolean, val message: String, val data: PaymentSMSData
 )
 
+@Entity(tableName = "user_info")
 data class UserInfoResponse(
+    @PrimaryKey(autoGenerate = true)
+    val id: Int? = null,
     val status: Boolean,
     val message: String,
     val totalSmsCount: Int,

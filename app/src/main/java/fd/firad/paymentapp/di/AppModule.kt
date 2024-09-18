@@ -14,7 +14,8 @@ import fd.firad.paymentapp.auth.data.api.AuthApiService
 import fd.firad.paymentapp.auth.data.repository.AuthRepositoryImpl
 import fd.firad.paymentapp.auth.domain.repository.AuthRepository
 import fd.firad.paymentapp.common.constants.Constants.BASE_URL
-import fd.firad.paymentapp.home.sms.data.api.SMSApiService
+import fd.firad.paymentapp.home.sms.data.local.db.UserInfoDao
+import fd.firad.paymentapp.home.sms.data.remote.SMSApiService
 import fd.firad.paymentapp.home.sms.data.repository.SMSRepositoryImpl
 import fd.firad.paymentapp.home.sms.domain.repository.SMSRepository
 import fd.firad.paymentapp.room.dao.SmsDao
@@ -55,8 +56,14 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideSMSRepository(apiService: SMSApiService, smsDatabase: SmsDatabase): SMSRepository {
-        return SMSRepositoryImpl(apiService, smsDatabase)
+    fun provideSMSRepository(
+        apiService: SMSApiService,
+        smsDao: SmsDao,
+        userInfoDao: UserInfoDao,
+        @ApplicationContext context: Context,
+        connectivityManager: ConnectivityManager
+    ): SMSRepository {
+        return SMSRepositoryImpl(apiService, smsDao, userInfoDao, context, connectivityManager)
     }
 
     @Provides
@@ -89,6 +96,12 @@ object AppModule {
     }
 
     @Provides
+    fun provideUserInfoDao(appDatabase: SmsDatabase): UserInfoDao {
+        return appDatabase.userInfoDao()
+    }
+
+    @Provides
+    @Singleton
     fun provideConnectivityManager(@ApplicationContext context: Context): ConnectivityManager {
         return context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
     }
