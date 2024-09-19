@@ -58,12 +58,11 @@ object AppModule {
     @Singleton
     fun provideSMSRepository(
         apiService: SMSApiService,
-        smsDao: SmsDao,
-        userInfoDao: UserInfoDao,
+        database: SmsDatabase,
         @ApplicationContext context: Context,
         connectivityManager: ConnectivityManager
     ): SMSRepository {
-        return SMSRepositoryImpl(apiService, smsDao, userInfoDao, context, connectivityManager)
+        return SMSRepositoryImpl(apiService, database, context, connectivityManager)
     }
 
     @Provides
@@ -96,9 +95,10 @@ object AppModule {
     }
 
     @Provides
-    fun provideUserInfoDao(appDatabase: SmsDatabase): UserInfoDao {
-        return appDatabase.userInfoDao()
+    fun provideUserInfoDao(database: SmsDatabase): UserInfoDao {
+        return database.userInfoDao()
     }
+
 
     @Provides
     @Singleton

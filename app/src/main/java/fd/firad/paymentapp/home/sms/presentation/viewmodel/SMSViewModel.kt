@@ -1,5 +1,6 @@
 package fd.firad.paymentapp.home.sms.presentation.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fd.firad.paymentapp.common.model.ApiResponseState
@@ -8,10 +9,14 @@ import fd.firad.paymentapp.common.utils.SharedPreferenceManager
 import fd.firad.paymentapp.home.sms.data.model.AllSMSResponse
 import fd.firad.paymentapp.home.sms.data.model.PaymentSMSResponse
 import fd.firad.paymentapp.home.sms.data.model.PaymentSendSmsBody
-import fd.firad.paymentapp.home.sms.data.model.TransactionResponse
+import fd.firad.paymentapp.home.sms.data.model.TodayTransactionResponse
 import fd.firad.paymentapp.home.sms.data.model.UpdateSMSStatusResponse
 import fd.firad.paymentapp.home.sms.data.model.UpdateStatusBody
 import fd.firad.paymentapp.home.sms.data.model.UserInfoResponse
+import fd.firad.paymentapp.home.sms.data.model.convertAllTimeToTodayTransaction
+import fd.firad.paymentapp.home.sms.data.model.convertMonthlyToTodayTransaction
+import fd.firad.paymentapp.home.sms.data.model.convertWeeklyToTodayTransaction
+import fd.firad.paymentapp.home.sms.data.model.convertYearlyToTodayTransaction
 import fd.firad.paymentapp.home.sms.domain.usecase.SMSUseCase
 import fd.firad.paymentapp.room.entity.SmsEntity
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -155,7 +160,7 @@ class SMSViewModel @Inject constructor(
             _userInfoState.value = ApiResponseState.Loading
             try {
                 if (getToken() != null) {
-                    val result = smsUseCase.userInfo("Bearer ${getToken()!!}",forceFetch)
+                    val result = smsUseCase.userInfo("Bearer ${getToken()!!}", forceFetch)
                     _userInfoState.value = result
                 } else {
                     _userInfoState.value = ApiResponseState.Error("Token is null")
@@ -168,15 +173,16 @@ class SMSViewModel @Inject constructor(
 
 
     private val _transactionState =
-        MutableStateFlow<ApiResponseState<TransactionResponse>>(ApiResponseState.Loading)
-    val transactionState: StateFlow<ApiResponseState<TransactionResponse>> = _transactionState
+        MutableStateFlow<ApiResponseState<TodayTransactionResponse>>(ApiResponseState.Loading)
+    val transactionState: StateFlow<ApiResponseState<TodayTransactionResponse>> = _transactionState
 
-    fun todayTransaction() {
+    fun todayTransaction(forceFetch: Boolean = false) {
         viewModelScope.launch {
             _transactionState.value = ApiResponseState.Loading
             try {
                 if (getToken() != null) {
-                    val result = smsUseCase.todayTransaction("Bearer ${getToken()!!}")
+                    val result = smsUseCase.todayTransaction("Bearer ${getToken()}",forceFetch)
+                    Log.e("TAG", "$result")
                     _transactionState.value = result
                 } else {
                     _transactionState.value = ApiResponseState.Error("Token is null")
@@ -187,13 +193,23 @@ class SMSViewModel @Inject constructor(
         }
     }
 
-    fun weeklyTransaction() {
+    fun weeklyTransaction(forceFetch: Boolean = false) {
         viewModelScope.launch {
             _transactionState.value = ApiResponseState.Loading
             try {
                 if (getToken() != null) {
-                    val result = smsUseCase.weeklyTransaction("Bearer ${getToken()!!}")
-                    _transactionState.value = result
+                    val result = smsUseCase.weeklyTransaction("Bearer ${getToken()}",forceFetch)
+                    _transactionState.value = when (result) {
+                        is ApiResponseState.Success -> {
+                            val todayTransaction = convertWeeklyToTodayTransaction(result.data)
+                            Log.e("TAG", "$todayTransaction" )
+                            ApiResponseState.Success(todayTransaction)
+                        }
+                        is ApiResponseState.Error -> {
+                            ApiResponseState.Error(result.errorMessage)
+                        }
+                        else -> ApiResponseState.Error("Unknown error occurred")
+                    }
                 } else {
                     _transactionState.value = ApiResponseState.Error("Token is null")
                 }
@@ -203,13 +219,22 @@ class SMSViewModel @Inject constructor(
         }
     }
 
-    fun monthlyTransaction() {
+    fun monthlyTransaction(forceFetch: Boolean = false) {
         viewModelScope.launch {
             _transactionState.value = ApiResponseState.Loading
             try {
                 if (getToken() != null) {
-                    val result = smsUseCase.monthlyTransaction("Bearer ${getToken()!!}")
-                    _transactionState.value = result
+                    val result = smsUseCase.monthlyTransaction("Bearer ${getToken()}",forceFetch)
+                    _transactionState.value = when (result) {
+                        is ApiResponseState.Success -> {
+                            val todayTransaction = convertMonthlyToTodayTransaction(result.data)
+                            ApiResponseState.Success(todayTransaction)
+                        }
+                        is ApiResponseState.Error -> {
+                            ApiResponseState.Error(result.errorMessage)
+                        }
+                        else -> ApiResponseState.Error("Unknown error occurred")
+                    }
                 } else {
                     _transactionState.value = ApiResponseState.Error("Token is null")
                 }
@@ -219,13 +244,22 @@ class SMSViewModel @Inject constructor(
         }
     }
 
-    fun yearlyTransaction() {
+    fun yearlyTransaction(forceFetch: Boolean = false) {
         viewModelScope.launch {
             _transactionState.value = ApiResponseState.Loading
             try {
                 if (getToken() != null) {
-                    val result = smsUseCase.yearlyTransaction("Bearer ${getToken()!!}")
-                    _transactionState.value = result
+                    val result = smsUseCase.yearlyTransaction("Bearer ${getToken()}",forceFetch)
+                    _transactionState.value = when (result) {
+                        is ApiResponseState.Success -> {
+                            val todayTransaction = convertYearlyToTodayTransaction(result.data)
+                            ApiResponseState.Success(todayTransaction)
+                        }
+                        is ApiResponseState.Error -> {
+                            ApiResponseState.Error(result.errorMessage)
+                        }
+                        else -> ApiResponseState.Error("Unknown error occurred")
+                    }
                 } else {
                     _transactionState.value = ApiResponseState.Error("Token is null")
                 }
@@ -235,13 +269,22 @@ class SMSViewModel @Inject constructor(
         }
     }
 
-    fun allTimeTransaction() {
+    fun allTimeTransaction(forceFetch: Boolean = false) {
         viewModelScope.launch {
             _transactionState.value = ApiResponseState.Loading
             try {
                 if (getToken() != null) {
-                    val result = smsUseCase.allTimeTransaction("Bearer ${getToken()!!}")
-                    _transactionState.value = result
+                    val result = smsUseCase.allTimeTransaction("Bearer ${getToken()}",forceFetch)
+                    _transactionState.value = when (result) {
+                        is ApiResponseState.Success -> {
+                            val todayTransaction = convertAllTimeToTodayTransaction(result.data)
+                            ApiResponseState.Success(todayTransaction)
+                        }
+                        is ApiResponseState.Error -> {
+                            ApiResponseState.Error(result.errorMessage)
+                        }
+                        else -> ApiResponseState.Error("Unknown error occurred")
+                    }
                 } else {
                     _transactionState.value = ApiResponseState.Error("Token is null")
                 }

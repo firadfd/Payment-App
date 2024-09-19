@@ -1,14 +1,18 @@
 package fd.firad.paymentapp.home.sms.data.remote
 
 import fd.firad.paymentapp.home.sms.data.model.AllSMSResponse
+import fd.firad.paymentapp.home.sms.data.model.AllTimeTransactionResponse
+import fd.firad.paymentapp.home.sms.data.model.MonthlyTransactionResponse
 import fd.firad.paymentapp.home.sms.data.model.PaymentSMSResponse
 import fd.firad.paymentapp.home.sms.data.model.PaymentSendSmsBody
 import fd.firad.paymentapp.home.sms.data.model.SendSMSResponse
 import fd.firad.paymentapp.home.sms.data.model.SendSmsBody
-import fd.firad.paymentapp.home.sms.data.model.TransactionResponse
+import fd.firad.paymentapp.home.sms.data.model.TodayTransactionResponse
 import fd.firad.paymentapp.home.sms.data.model.UpdateSMSStatusResponse
 import fd.firad.paymentapp.home.sms.data.model.UpdateStatusBody
 import fd.firad.paymentapp.home.sms.data.model.UserInfoResponse
+import fd.firad.paymentapp.home.sms.data.model.WeeklyTransactionResponse
+import fd.firad.paymentapp.home.sms.data.model.YearlyTransactionResponse
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -81,33 +85,33 @@ interface SMSApiService {
     @GET("todaytransaction")
     suspend fun todayTransaction(
         @Header("Authorization") token: String,
-    ): Response<TransactionResponse>
+    ): Response<TodayTransactionResponse>
 
 
     //12
     @GET("weeklytransaction")
     suspend fun weeklyTransaction(
         @Header("Authorization") token: String,
-    ): Response<TransactionResponse>
+    ): Response<WeeklyTransactionResponse>
 
 
     //13
     @GET("monthlytransaction")
     suspend fun monthlyTransaction(
         @Header("Authorization") token: String,
-    ): Response<TransactionResponse>
+    ): Response<MonthlyTransactionResponse>
 
     //14
     @GET("yearlytransaction")
     suspend fun yearlyTransaction(
         @Header("Authorization") token: String,
-    ): Response<TransactionResponse>
+    ): Response<YearlyTransactionResponse>
 
     //14
     @GET("alltimetransaction")
     suspend fun alltimeTransaction(
         @Header("Authorization") token: String,
-    ): Response<TransactionResponse>
+    ): Response<AllTimeTransactionResponse>
 
 
 }

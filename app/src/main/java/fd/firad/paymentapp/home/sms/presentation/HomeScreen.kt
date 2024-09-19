@@ -117,6 +117,13 @@ fun HomeScreen(navController: NavHostController, viewModel: SMSViewModel = hiltV
         isRefreshing = true
         scope.launch {
             viewModel.userInfo(true)
+            when (selectedTabIndex) {
+                0 -> viewModel.todayTransaction(true)
+                1 -> viewModel.weeklyTransaction(true)
+                2 -> viewModel.monthlyTransaction(true)
+                3 -> viewModel.yearlyTransaction(true)
+                4 -> viewModel.allTimeTransaction(true)
+            }
             delay(1500)
             isRefreshing = false
         }
@@ -205,11 +212,7 @@ fun HomeScreen(navController: NavHostController, viewModel: SMSViewModel = hiltV
 
                 is ApiResponseState.Success -> {
                     total = when {
-                        state.data.allTimeTransaction?.takeIf { it != "0" } != null -> state.data.allTimeTransaction
-                        state.data.yearlyTransaction?.takeIf { it != "0" } != null -> state.data.yearlyTransaction
-                        state.data.monthlyTransaction?.takeIf { it != "0" } != null -> state.data.monthlyTransaction
-                        state.data.weeklyTransaction?.takeIf { it != "0" } != null -> state.data.weeklyTransaction
-                        state.data.todayTransaction?.takeIf { it != "0" } != null -> state.data.todayTransaction
+                        state.data.todayTransaction.takeIf { it != "0" } != null -> state.data.todayTransaction
                         else -> "0"
                     }
 

@@ -41,8 +41,7 @@ data class PaymentSMSResponse(
 
 @Entity(tableName = "user_info")
 data class UserInfoResponse(
-    @PrimaryKey(autoGenerate = true)
-    val id: Int? = null,
+    @PrimaryKey(autoGenerate = true) val id: Int? = null,
     val status: Boolean,
     val message: String,
     val totalSmsCount: Int,
@@ -104,16 +103,128 @@ data class PaymentSMSData(
     val id: Int,
 )
 
-data class TransactionResponse(
+
+@Entity(tableName = "weekly_info")
+data class WeeklyTransactionResponse(
+    @PrimaryKey(autoGenerate = true) val id: Int? = null,
     val status: String,
-    val message: String,
-    val todayTransaction: String? = null,
-    val weeklyTransaction: String? = null,
-    val monthlyTransaction: String? = null,
-    val yearlyTransaction: String? = null,
-    val allTimeTransaction: String? = null,
+    val message: String? = null,
+    val weeklyTransaction: String,
     val bkash: String,
     val nagad: String,
     val rocket: String,
     val upay: String,
 )
+
+@Entity(tableName = "monthly_info")
+data class MonthlyTransactionResponse(
+    @PrimaryKey(autoGenerate = true) val id: Int? = null,
+    val status: String,
+    val message: String? = null,
+    val monthlyTransaction: String,
+    val bkash: String,
+    val nagad: String,
+    val rocket: String,
+    val upay: String,
+)
+
+@Entity(tableName = "yearly_info")
+data class YearlyTransactionResponse(
+    @PrimaryKey(autoGenerate = true) val id: Int? = null,
+    val status: String,
+    val message: String? = null,
+    val yearlyTransaction: String,
+    val bkash: String,
+    val nagad: String,
+    val rocket: String,
+    val upay: String,
+)
+
+@Entity(tableName = "all_time_info")
+data class AllTimeTransactionResponse(
+    @PrimaryKey(autoGenerate = true) val id: Int? = null,
+    val status: String,
+    val message: String? = null,
+    val allTimeTransaction: String,
+    val bkash: String,
+    val nagad: String,
+    val rocket: String,
+    val upay: String,
+)
+
+// Function to map any transaction response to TodayTransactionResponse
+fun mapToTodayTransaction(
+    status: String,
+    message: String,
+    todayTransaction: String,
+    bkash: String,
+    nagad: String,
+    rocket: String,
+    upay: String
+): TodayTransactionResponse {
+    return TodayTransactionResponse(
+        status = status,
+        message = message,
+        todayTransaction = todayTransaction,
+        bkash = bkash,
+        nagad = nagad,
+        rocket = rocket,
+        upay = upay
+    )
+}
+
+
+fun convertWeeklyToTodayTransaction(weeklyResponse: WeeklyTransactionResponse): TodayTransactionResponse {
+    return mapToTodayTransaction(
+        status = weeklyResponse.status,
+        message = weeklyResponse.message ?: "",
+        todayTransaction =  weeklyResponse.weeklyTransaction,
+        bkash = weeklyResponse.bkash,
+        nagad = weeklyResponse.nagad,
+        rocket = weeklyResponse.rocket,
+        upay = weeklyResponse.upay
+    )
+}
+
+fun convertMonthlyToTodayTransaction(monthlyResponse: MonthlyTransactionResponse): TodayTransactionResponse {
+    return mapToTodayTransaction(
+        status = monthlyResponse.status,
+        message = monthlyResponse.message ?: "",
+        todayTransaction = monthlyResponse.monthlyTransaction,
+        bkash = monthlyResponse.bkash,
+        nagad = monthlyResponse.nagad,
+        rocket = monthlyResponse.rocket,
+        upay = monthlyResponse.upay
+    )
+}
+
+
+fun convertYearlyToTodayTransaction(yearlyResponse: YearlyTransactionResponse): TodayTransactionResponse {
+    return mapToTodayTransaction(
+        status = yearlyResponse.status,
+        message = yearlyResponse.message ?: "",
+        todayTransaction = yearlyResponse.yearlyTransaction,
+        bkash = yearlyResponse.bkash,
+        nagad = yearlyResponse.nagad,
+        rocket = yearlyResponse.rocket,
+        upay = yearlyResponse.upay
+    )
+}
+
+
+fun convertAllTimeToTodayTransaction(allTimeResponse: AllTimeTransactionResponse): TodayTransactionResponse {
+    return mapToTodayTransaction(
+        status = allTimeResponse.status,
+        message = allTimeResponse.message ?: "",
+        todayTransaction = allTimeResponse.allTimeTransaction,
+        bkash = allTimeResponse.bkash,
+        nagad = allTimeResponse.nagad,
+        rocket = allTimeResponse.rocket,
+        upay = allTimeResponse.upay
+    )
+}
+
+
+
+
+
