@@ -1,21 +1,13 @@
 package fd.firad.paymentapp.common.constants
 
-import android.app.Activity
-import android.app.PendingIntent
-import android.content.BroadcastReceiver
 import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.ConnectivityManager
 import android.net.Uri
-import android.os.Build
 import android.telephony.SmsManager
 import android.telephony.SubscriptionManager
-import android.widget.Toast
-import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import dagger.hilt.android.qualifiers.ApplicationContext
 import fd.firad.paymentapp.home.sms.presentation.SendSmsResult
@@ -25,7 +17,7 @@ import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
 object Constants {
-    const val BASE_URL = "https://api.codexen.co/api/"
+    const val BASE_URL = "https://ekokpay.com/api/"
 
     fun isOnline(@ApplicationContext context: Context): Boolean {
         var haveConnectedWifi = false
@@ -82,7 +74,6 @@ object Constants {
         val formatter = DateTimeFormatter.ofPattern("hh:mma dd-MM-yyyy")
         return zonedDateTime.format(formatter).lowercase()
     }
-
 
 
 }

@@ -10,15 +10,20 @@ import fd.firad.paymentapp.home.sms.data.model.SendSmsBody
 import fd.firad.paymentapp.home.sms.data.model.TodayTransactionResponse
 import fd.firad.paymentapp.home.sms.data.model.UpdateSMSStatusResponse
 import fd.firad.paymentapp.home.sms.data.model.UpdateStatusBody
+import fd.firad.paymentapp.home.sms.data.model.UpdateUserResponse
 import fd.firad.paymentapp.home.sms.data.model.UserInfoResponse
 import fd.firad.paymentapp.home.sms.data.model.WeeklyTransactionResponse
 import fd.firad.paymentapp.home.sms.data.model.YearlyTransactionResponse
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Header
+import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.PUT
+import retrofit2.http.Part
 import retrofit2.http.Path
 
 interface SMSApiService {
@@ -112,6 +117,17 @@ interface SMSApiService {
     suspend fun alltimeTransaction(
         @Header("Authorization") token: String,
     ): Response<AllTimeTransactionResponse>
+
+    //15
+    @Multipart
+    @POST("update-user")
+    suspend fun updateUserInfo(
+        @Header("Authorization") token: String,
+        @Part("name") name: RequestBody,
+        @Part("email") email: RequestBody,
+        @Part("phone") phone: RequestBody,
+        @Part profileImage: MultipartBody.Part
+    ): Response<UpdateUserResponse>
 
 
 }
