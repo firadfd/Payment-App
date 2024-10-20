@@ -39,6 +39,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import fd.firad.paymentapp.home.sms.presentation.FailedSMSScreen
 import fd.firad.paymentapp.home.sms.presentation.HomeScreen
+import fd.firad.paymentapp.home.sms.presentation.PassChangeScreen
 import fd.firad.paymentapp.home.sms.presentation.ProfileScreen
 import fd.firad.paymentapp.home.sms.presentation.SMSHistoryScreen
 import fd.firad.paymentapp.home.sms.presentation.SMSScreen
@@ -161,6 +162,13 @@ fun MainNavHost(rootNavController: NavHostController) {
                 }
                 composable("ScreenSMSHistory") {
                     SMSHistoryScreen(navController = navController)
+                }
+                composable<ScreenPassChange> {
+                    PassChangeScreen(navController = navController){
+                        rootNavController.navigate("AuthNavHost") {
+                            popUpTo("MainNavHost") { inclusive = true }
+                        }
+                    }
                 }
                 composable("ScreenProfile") {
                     ProfileScreen(navController = navController, isLogout = {

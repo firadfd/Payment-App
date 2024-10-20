@@ -7,9 +7,11 @@ import fd.firad.paymentapp.common.model.ApiResponseState
 import fd.firad.paymentapp.common.presentation.BaseViewModel
 import fd.firad.paymentapp.common.utils.SharedPreferenceManager
 import fd.firad.paymentapp.home.sms.data.model.AllSMSResponse
+import fd.firad.paymentapp.home.sms.data.model.ChangePasswordBody
 import fd.firad.paymentapp.home.sms.data.model.PaymentSMSResponse
 import fd.firad.paymentapp.home.sms.data.model.PaymentSendSmsBody
 import fd.firad.paymentapp.home.sms.data.model.TodayTransactionResponse
+import fd.firad.paymentapp.home.sms.data.model.UpdatePassResponse
 import fd.firad.paymentapp.home.sms.data.model.UpdateSMSStatusResponse
 import fd.firad.paymentapp.home.sms.data.model.UpdateStatusBody
 import fd.firad.paymentapp.home.sms.data.model.UserInfoResponse
@@ -290,6 +292,26 @@ class SMSViewModel @Inject constructor(
                 }
             } catch (e: Exception) {
                 _transactionState.value = ApiResponseState.Error("An error occurred: ${e.message}")
+            }
+        }
+    }
+
+    private val _changePassState =
+        MutableStateFlow<ApiResponseState<UpdatePassResponse>>(ApiResponseState.Loading)
+    val changePassState: StateFlow<ApiResponseState<UpdatePassResponse>> = _changePassState
+
+    fun userPassChange(request: ChangePasswordBody) {
+        viewModelScope.launch {
+            _changePassState.value = ApiResponseState.Loading
+            try {
+                if (getToken() != null) {
+                    val result = smsUseCase.changePassword("Bearer ${getToken()!!}", request = request)
+                    _changePassState.value = result
+                } else {
+                    _changePassState.value = ApiResponseState.Error("Token is null")
+                }
+            } catch (e: Exception) {
+                _changePassState.value = ApiResponseState.Error("An error occurred: ${e.message}")
             }
         }
     }

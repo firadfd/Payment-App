@@ -4,10 +4,12 @@ import androidx.lifecycle.LiveData
 import fd.firad.paymentapp.common.model.ApiResponseState
 import fd.firad.paymentapp.home.sms.data.model.AllSMSResponse
 import fd.firad.paymentapp.home.sms.data.model.AllTimeTransactionResponse
+import fd.firad.paymentapp.home.sms.data.model.ChangePasswordBody
 import fd.firad.paymentapp.home.sms.data.model.MonthlyTransactionResponse
 import fd.firad.paymentapp.home.sms.data.model.PaymentSMSResponse
 import fd.firad.paymentapp.home.sms.data.model.PaymentSendSmsBody
 import fd.firad.paymentapp.home.sms.data.model.TodayTransactionResponse
+import fd.firad.paymentapp.home.sms.data.model.UpdatePassResponse
 import fd.firad.paymentapp.home.sms.data.model.UpdateSMSStatusResponse
 import fd.firad.paymentapp.home.sms.data.model.UpdateStatusBody
 import fd.firad.paymentapp.home.sms.data.model.UserInfoResponse
@@ -59,5 +61,8 @@ interface SMSRepository {
     suspend fun monthTransaction(token: String,forceFetch: Boolean): ApiResponseState<MonthlyTransactionResponse>
     suspend fun yearTransaction(token: String,forceFetch: Boolean): ApiResponseState<YearlyTransactionResponse>
     suspend fun allTransaction(token: String,forceFetch: Boolean): ApiResponseState<AllTimeTransactionResponse>
+
+
+    suspend fun changePassword(token: String,request: ChangePasswordBody): ApiResponseState<UpdatePassResponse>
 
 }

@@ -413,6 +413,7 @@ fun PasswordTextInputField(
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
     hintText: String = "",
+    backgroundColor: Color = Color(0xFF2D3748),
     errorMessage: String? = null
 ) {
     var passwordVisible by remember { mutableStateOf(false) }
@@ -426,7 +427,7 @@ fun PasswordTextInputField(
                 .onFocusChanged { focusState ->
                     isFocused = focusState.isFocused
                 }
-                .background(Color(0xFF2D3748))
+                .background(backgroundColor)
                 .border(
                     width = if (isFocused) 1.dp else 0.dp,
                     color = if (isFocused) Color(0xFF9CA3AF) else Color.Transparent,

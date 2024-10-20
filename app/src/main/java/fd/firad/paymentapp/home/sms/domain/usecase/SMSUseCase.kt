@@ -4,10 +4,12 @@ import androidx.lifecycle.LiveData
 import fd.firad.paymentapp.common.model.ApiResponseState
 import fd.firad.paymentapp.home.sms.data.model.AllSMSResponse
 import fd.firad.paymentapp.home.sms.data.model.AllTimeTransactionResponse
+import fd.firad.paymentapp.home.sms.data.model.ChangePasswordBody
 import fd.firad.paymentapp.home.sms.data.model.MonthlyTransactionResponse
 import fd.firad.paymentapp.home.sms.data.model.PaymentSMSResponse
 import fd.firad.paymentapp.home.sms.data.model.PaymentSendSmsBody
 import fd.firad.paymentapp.home.sms.data.model.TodayTransactionResponse
+import fd.firad.paymentapp.home.sms.data.model.UpdatePassResponse
 import fd.firad.paymentapp.home.sms.data.model.UpdateSMSStatusResponse
 import fd.firad.paymentapp.home.sms.data.model.UpdateStatusBody
 import fd.firad.paymentapp.home.sms.data.model.UserInfoResponse
@@ -32,9 +34,7 @@ class SMSUseCase @Inject constructor(private val smsRepository: SMSRepository) {
     }
 
     suspend fun allSms(
-        token: String,
-        apiKey: String,
-        secretKey: String
+        token: String, apiKey: String, secretKey: String
     ): ApiResponseState<AllSMSResponse> {
         return smsRepository.allSms(token, apiKey, secretKey)
     }
@@ -48,10 +48,7 @@ class SMSUseCase @Inject constructor(private val smsRepository: SMSRepository) {
     }
 
     suspend fun paymentSms(
-        token: String,
-        apiKey: String,
-        secretKey: String,
-        request: PaymentSendSmsBody
+        token: String, apiKey: String, secretKey: String, request: PaymentSendSmsBody
     ): ApiResponseState<PaymentSMSResponse> {
         return smsRepository.paymentSms(token, apiKey, secretKey, request)
     }
@@ -63,59 +60,59 @@ class SMSUseCase @Inject constructor(private val smsRepository: SMSRepository) {
     }
 
     suspend fun updateSmsStatus(
-        token: String,
-        id: Int,
-        apiKey: String,
-        secretKey: String,
-        request: UpdateStatusBody
+        token: String, id: Int, apiKey: String, secretKey: String, request: UpdateStatusBody
     ): ApiResponseState<UpdateSMSStatusResponse> {
         return smsRepository.updateStatus(
-            token = token,
-            id = id,
-            apiKey = apiKey,
-            secretKey = secretKey,
-            request = request
+            token = token, id = id, apiKey = apiKey, secretKey = secretKey, request = request
         )
     }
 
 
     suspend fun todayTransaction(
-        token: String,forceFetch: Boolean
+        token: String, forceFetch: Boolean
     ): ApiResponseState<TodayTransactionResponse> {
         return smsRepository.todayTransaction(
-            token = token,forceFetch
+            token = token, forceFetch
         )
     }
 
     suspend fun weeklyTransaction(
-        token: String,forceFetch: Boolean
+        token: String, forceFetch: Boolean
     ): ApiResponseState<WeeklyTransactionResponse> {
         return smsRepository.weekTransaction(
-            token = token,forceFetch
+            token = token, forceFetch
         )
     }
 
     suspend fun monthlyTransaction(
-        token: String,forceFetch: Boolean
+        token: String, forceFetch: Boolean
     ): ApiResponseState<MonthlyTransactionResponse> {
         return smsRepository.monthTransaction(
-            token = token,forceFetch
+            token = token, forceFetch
         )
     }
 
     suspend fun yearlyTransaction(
-        token: String,forceFetch: Boolean
+        token: String, forceFetch: Boolean
     ): ApiResponseState<YearlyTransactionResponse> {
         return smsRepository.yearTransaction(
-            token = token,forceFetch
+            token = token, forceFetch
         )
     }
 
     suspend fun allTimeTransaction(
-        token: String,forceFetch: Boolean
+        token: String, forceFetch: Boolean
     ): ApiResponseState<AllTimeTransactionResponse> {
         return smsRepository.allTransaction(
-            token = token,forceFetch
+            token = token, forceFetch
+        )
+    }
+
+    suspend fun changePassword(
+        token: String, request: ChangePasswordBody
+    ): ApiResponseState<UpdatePassResponse> {
+        return smsRepository.changePassword(
+            token = token, request = request
         )
     }
 }

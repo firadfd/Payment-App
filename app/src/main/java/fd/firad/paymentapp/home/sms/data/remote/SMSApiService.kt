@@ -2,12 +2,14 @@ package fd.firad.paymentapp.home.sms.data.remote
 
 import fd.firad.paymentapp.home.sms.data.model.AllSMSResponse
 import fd.firad.paymentapp.home.sms.data.model.AllTimeTransactionResponse
+import fd.firad.paymentapp.home.sms.data.model.ChangePasswordBody
 import fd.firad.paymentapp.home.sms.data.model.MonthlyTransactionResponse
 import fd.firad.paymentapp.home.sms.data.model.PaymentSMSResponse
 import fd.firad.paymentapp.home.sms.data.model.PaymentSendSmsBody
 import fd.firad.paymentapp.home.sms.data.model.SendSMSResponse
 import fd.firad.paymentapp.home.sms.data.model.SendSmsBody
 import fd.firad.paymentapp.home.sms.data.model.TodayTransactionResponse
+import fd.firad.paymentapp.home.sms.data.model.UpdatePassResponse
 import fd.firad.paymentapp.home.sms.data.model.UpdateSMSStatusResponse
 import fd.firad.paymentapp.home.sms.data.model.UpdateStatusBody
 import fd.firad.paymentapp.home.sms.data.model.UpdateUserResponse
@@ -128,6 +130,14 @@ interface SMSApiService {
         @Part("phone") phone: RequestBody,
         @Part profileImage: MultipartBody.Part
     ): Response<UpdateUserResponse>
+
+
+    //16
+    @POST("change-password")
+    suspend fun changePassword(
+        @Header("Authorization") token: String,
+        @Body request: ChangePasswordBody
+    ):Response<UpdatePassResponse>
 
 
 }

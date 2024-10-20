@@ -13,3 +13,6 @@ object ScreenForgetPassword
 
 @Serializable
 data class ScreenForgetPasswordOTP(val email: String)
+
+@Serializable
+object ScreenPassChange

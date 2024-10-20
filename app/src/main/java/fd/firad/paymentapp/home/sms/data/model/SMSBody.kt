@@ -35,3 +35,13 @@ data class User(
     val created_at: String,
     val updated_at: String
 )
+
+data class ChangePasswordBody(
+    val old_password: String,
+    val new_password: String
+)
+
+data class UpdatePassResponse(
+    val status: Boolean,
+    val message: String
+)

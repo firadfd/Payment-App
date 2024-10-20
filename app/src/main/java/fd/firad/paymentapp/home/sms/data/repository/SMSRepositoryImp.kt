@@ -11,10 +11,12 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import fd.firad.paymentapp.common.model.ApiResponseState
 import fd.firad.paymentapp.home.sms.data.model.AllSMSResponse
 import fd.firad.paymentapp.home.sms.data.model.AllTimeTransactionResponse
+import fd.firad.paymentapp.home.sms.data.model.ChangePasswordBody
 import fd.firad.paymentapp.home.sms.data.model.MonthlyTransactionResponse
 import fd.firad.paymentapp.home.sms.data.model.PaymentSMSResponse
 import fd.firad.paymentapp.home.sms.data.model.PaymentSendSmsBody
 import fd.firad.paymentapp.home.sms.data.model.TodayTransactionResponse
+import fd.firad.paymentapp.home.sms.data.model.UpdatePassResponse
 import fd.firad.paymentapp.home.sms.data.model.UpdateSMSStatusResponse
 import fd.firad.paymentapp.home.sms.data.model.UpdateStatusBody
 import fd.firad.paymentapp.home.sms.data.model.UserInfoResponse
@@ -840,6 +842,41 @@ class SMSRepositoryImpl @Inject constructor(
                 ApiResponseState.Error("Request was cancelled")
             } catch (e: Exception) {
                 // Log any other unanticipated exceptions
+                ApiResponseState.Error("An unknown error occurred: ${e.message}")
+            }
+        }
+    }
+
+    override suspend fun changePassword(
+        token: String,
+        request: ChangePasswordBody
+    ): ApiResponseState<UpdatePassResponse> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response =
+                    smsApiService.changePassword(token = token, request = request)
+                if (response.isSuccessful) {
+                    response.body()?.let {
+                        ApiResponseState.Success(it)
+                    } ?: ApiResponseState.Error("Response body is null")
+                } else {
+
+                    val errorBody = response.errorBody()?.string()
+                    val errorMessage = errorBody?.let {
+                        val jsonObject = Gson().fromJson(it, JsonObject::class.java)
+                        jsonObject.get("message")?.asString ?: "Unknown error"
+                    }
+                    ApiResponseState.Error("Error: ${response.code()} - $errorMessage")
+                }
+            } catch (e: IOException) {
+                ApiResponseState.Error("Network error: ${e.message}")
+            } catch (e: SocketTimeoutException) {
+                ApiResponseState.Error("Request timed out: ${e.message}")
+            } catch (e: HttpException) {
+                ApiResponseState.Error("HTTP error: ${e.message()}")
+            } catch (e: CancellationException) {
+                ApiResponseState.Error("Request was cancelled")
+            } catch (e: Exception) {
                 ApiResponseState.Error("An unknown error occurred: ${e.message}")
             }
         }

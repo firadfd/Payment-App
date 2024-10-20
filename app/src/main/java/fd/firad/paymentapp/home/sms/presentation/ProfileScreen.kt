@@ -58,6 +58,7 @@ import fd.firad.paymentapp.common.model.ApiResponseState
 import fd.firad.paymentapp.common.presentation.CustomButton
 import fd.firad.paymentapp.common.presentation.CustomTopBar
 import fd.firad.paymentapp.home.sms.presentation.viewmodel.SMSViewModel
+import fd.firad.paymentapp.nav.ScreenPassChange
 import fd.firad.paymentapp.ui.theme.blueColor
 import fd.firad.paymentapp.ui.theme.textColor
 
@@ -280,7 +281,6 @@ fun ProfileScreen(
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp)
         ) {
-
         }
         Spacer(modifier = Modifier.height(10.dp))
         ProfileItem(
@@ -290,7 +290,7 @@ fun ProfileScreen(
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp)
         ) {
-
+        navController.navigate(ScreenPassChange)
         }
         Spacer(modifier = Modifier.height(10.dp))
         ProfileItem(
